@@ -16,11 +16,11 @@ Parameters:
   AnutoWebImageTag:
     Type: String
     Description: Tag of the anuto-server Docker image to use
-    Defaut: latest
+    Default: latest
   AnutoServerImageTag:
     Type: String
     Description: Tag of the anuto-server Docker image to use
-    Defaut: latest
+    Default: latest
 
 Resources:
 

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Upload CloudFormation file
+      - name: Upload CloudFormation file to S3 Bucket
         run: aws s3 cp cloudformation/node.yaml s3://cf-templates-1tsksmh05a2pc-us-east-1
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
