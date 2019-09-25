@@ -219,7 +219,7 @@ Resources:
             - ContainerPort: 80
           Environment:
             - Name: 'REACT_APP_API_URL'
-              Value: !Join ['', ['http://', !Ref 'Id', '.anuto.cartesi.io/api']]
+              Value: !Join ['', ['https://', !Ref 'Id', '.anuto.cartesi.io/api']]
         - Name: anuto-server
           Cpu: '32'
           Essential: 'true'
