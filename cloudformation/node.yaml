@@ -1,0 +1,328 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A stack for deploying a Cartesi node for Anuto inside a ECS using AWS Fargate.
+Parameters:
+  Id:
+    Type: String
+    Description: Id of the Cartesi node environment, which will also be use as the CNAME of the environment
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC to deploy the service to
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The list of subnets to use for deployment of service
+  ECSCluster:
+    Type: String
+    Description: ECS Cluster name to deploy the node to
+  AnutoWebImageTag:
+    Type: String
+    Description: Tag of the anuto-server Docker image to use
+    Defaut: latest
+  AnutoServerImageTag:
+    Type: String
+    Description: Tag of the anuto-server Docker image to use
+    Defaut: latest
+
+Resources:
+
+  CloudwatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['-', [ECSLogGroup, !Ref 'AWS::StackName']]
+      RetentionInDays: 14
+
+  # A security group for the containers we will run in Farget.
+  # We allow inbound to ports 80 and 8000 from everywhere
+  FargateContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the Fargate containers
+      VpcId: !Ref 'VpcId'
+
+  EcsSecurityGroupIngressFromPublicALB:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from the public ALB
+      GroupId: !Ref 'FargateContainerSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'PublicLoadBalancerSG'
+
+  EcsSecurityGroupIngressFromSelf:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from other containers in the same security group
+      GroupId: !Ref 'FargateContainerSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'FargateContainerSecurityGroup'
+
+  # Load balancers for getting traffic to containers.
+  # - One public load balancer, hosted in public subnets that is accessible
+  #   to the public, and is intended to route traffic to one or more public
+  #   facing services.
+
+  # A public facing load balancer, this is used for accepting traffic from the public
+  # internet and directing it to public facing microservices
+  PublicLoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the public facing load balancer
+      VpcId: !Ref 'VpcId'
+      SecurityGroupIngress:
+        # Allow access to ALB from anywhere on the internet
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+          FromPort: 80
+          ToPort: 80
+
+  PublicLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+      - Key: idle_timeout.timeout_seconds
+        Value: '30'
+      # The load balancer is placed into the public subnets, so that traffic
+      Subnets: !Ref Subnets
+      SecurityGroups: [!Ref 'PublicLoadBalancerSG']
+
+  # A dummy target group is used to setup the ALB to just drop traffic
+  # initially, before any real service target groups have been added.
+  DummyTargetGroupPublic:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'drop-1']]
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref 'VpcId'
+
+  ApiTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /api/tournaments
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      TargetType: ip
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'server']]
+      Port: 8000
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref 'VpcId'
+
+  WebTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      TargetType: ip
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'web']]
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref 'VpcId'
+
+  # Create a rule on the load balancer for routing traffic to the api
+  ApiLoadBalancerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'ApiTargetGroup'
+          Type: 'forward'
+      Conditions:
+        - Field: path-pattern
+          Values: ['/api/*']
+      ListenerArn: !Ref 'PublicLoadBalancerListener'
+      Priority: '1'
+
+  # Create a rule on the load balancer for routing traffic to the web
+  WebLoadBalancerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'WebTargetGroup'
+          Type: 'forward'
+      Conditions:
+        - Field: path-pattern
+          Values: ['*']
+      ListenerArn: !Ref 'PublicLoadBalancerListener'
+      Priority: '2'
+
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - PublicLoadBalancer
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'DummyTargetGroupPublic'
+          Type: 'forward'
+      LoadBalancerArn: !Ref 'PublicLoadBalancer'
+      Port: 80
+      Protocol: HTTP
+
+  # Specification of two containers, one for the front-end and another for the backend
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties: 
+      Family: !Join ['', [!Ref 'AWS::StackName', '-anuto']]
+      NetworkMode: awsvpc
+      Cpu: '256'
+      Memory: '512'
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
+      ContainerDefinitions:
+        - Name: anuto-web
+          Cpu: '32'
+          Essential: 'true'
+          Image: !Join ['', ['510455014572.dkr.ecr.us-east-1.amazonaws.com/anuto-web:', !Ref AnutoWebImageTag]]
+          Memory: '128'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'CloudwatchLogsGroup'
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: anuto-web
+          PortMappings:
+            - ContainerPort: 80
+          Environment:
+            - Name: 'REACT_APP_API_URL'
+              Value: !Join ['', ['http://', !Ref 'Id', '.anuto.cartesi.io/api']]
+        - Name: anuto-server
+          Cpu: '32'
+          Essential: 'true'
+          Image: !Join ['', ['510455014572.dkr.ecr.us-east-1.amazonaws.com/anuto-server:', !Ref AnutoServerImageTag]]
+          Memory: '128'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'CloudwatchLogsGroup'
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: anuto-server
+          PortMappings:
+            - ContainerPort: 8000
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ApiLoadBalancerRule
+      - WebLoadBalancerRule
+    Properties:
+      Cluster: !Ref 'ECSCluster'
+      ServiceName: !Ref 'AWS::StackName'
+      DesiredCount: '1'
+      LaunchType: 'FARGATE'
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: 'ENABLED'
+          SecurityGroups:
+            - !Ref FargateContainerSecurityGroup
+          Subnets: !Ref 'Subnets'
+      TaskDefinition: !Ref 'TaskDefinition'
+      LoadBalancers:
+        - ContainerName: anuto-web
+          ContainerPort: 80
+          TargetGroupArn: !Ref 'WebTargetGroup'
+        - ContainerName: anuto-server
+          ContainerPort: 8000
+          TargetGroupArn: !Ref 'ApiTargetGroup'
+
+  ECSServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: ecs-service
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  # Rules which allow ECS to attach network interfaces to instances
+                  # on your behalf in order for awsvpc networking mode to work right
+                  - 'ec2:AttachNetworkInterface'
+                  - 'ec2:CreateNetworkInterface'
+                  - 'ec2:CreateNetworkInterfacePermission'
+                  - 'ec2:DeleteNetworkInterface'
+                  - 'ec2:DeleteNetworkInterfacePermission'
+                  - 'ec2:Describe*'
+                  - 'ec2:DetachNetworkInterface'
+
+                  # Rules which allow ECS to update load balancers on your behalf
+                  # with the information sabout how to send traffic to your containers
+                  - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
+                  - 'elasticloadbalancing:DeregisterTargets'
+                  - 'elasticloadbalancing:Describe*'
+                  - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
+                  - 'elasticloadbalancing:RegisterTargets'
+                Resource: '*'
+
+  # This is a role which is used by the ECS tasks themselves.
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: Z6X50Q61DP29N
+      Name: !Join ['', [!Ref 'Id', '.anuto.cartesi.io.']]
+      Type: 'A'
+      AliasTarget:
+        DNSName: !GetAtt PublicLoadBalancer.DNSName
+        HostedZoneId: !GetAtt PublicLoadBalancer.CanonicalHostedZoneID
+
+Outputs:
+  DomainName:
+    Value: !Ref 'DNSRecord'
+
+# https://github.com/nathanpeck/aws-cloudformation-fargate
+# https://github.com/nathanpeck/aws-cloudformation-fargate/raw/master/images/public-task.png
+# https://aws.amazon.com/blogs/compute/task-networking-in-aws-fargate/
+# https://d2908q01vomqb2.cloudfront.net/1b6453892473a467d07372d45eb05abc2031647a/2018/01/26/Slide1-1024x592.png
+
+# Fully public networking stack.
+# All containers launched in this stack will have public IP addresses and can be directly accessible on 
+# the internet via an internet gateway, or indirectly accessible via a public facing load balancer.
+# (Note that by default the security groups are configured so that the containers only accept traffic 
+# from the load balancer, even though they have public IP addresses. The capability for direct access is 
+# there if the security group is changed though.)
