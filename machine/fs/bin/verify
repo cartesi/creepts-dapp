@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd $(dirname $0)
+echo Getting log
+./getlog > /tmp/log
+echo Getting level
+level=$(./getlevel)
+echo Running verification
+score=$(./djs offlineVerifier.js /tmp/log ../levels/${level}.json | tail -n 1)
+echo Writing results
+./writebe64 $score | dd status=none of=$(./flashdevicebylabel output)

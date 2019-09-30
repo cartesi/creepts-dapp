@@ -1,0 +1,18 @@
+perhaps add dfs and xxd to rootfs
+add .nomount option to device label
+remove dump console.logs from the offline verifier (output only score)
+run as user instead of as admin?
+make verifier much more robust
+issue error if extra command lines in boot are not executable from /sbin/init
+try to remove the messages that bbl is printing, or maybe the linux kernel is
+still outputing messages with the quiet option? Maybe replace this with a nice
+splash-screen with the Cartesi logo in ascii art?
+          .
+         / \
+       /    \
+-----/---\  /----\
+ \       X        \
+  \----/  \----/----
+        \    / CARTESI
+         \ /   MACHINE
+          '

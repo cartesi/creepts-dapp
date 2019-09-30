@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd $(dirname $0)
+dd status=none if=$(./flashdevicebylabel log) | tar -xO log.json.br | brotli -d -c

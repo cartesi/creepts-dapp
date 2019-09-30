@@ -1,0 +1,807 @@
+diff -Naur duktape-2.4.0.old/Makefile.djs duktape-2.4.0/Makefile.djs
+--- duktape-2.4.0.old/Makefile.djs	1969-12-31 21:00:00.000000000 -0300
++++ duktape-2.4.0/Makefile.djs	2019-08-31 14:24:26.000000000 -0300
+@@ -0,0 +1,36 @@
++#
++#  Example Makefile for building a program with embedded Duktape.
++#  The example program here is the Duktape command line tool.
++#
++
++DUKTAPE_SOURCES = src/duktape.c
++
++CMDLINE_SOURCES = \
++	examples/djs/duk_js.c
++
++CC ?= gcc
++CCOPTS = -O2 -pedantic -std=c99 -Wall -fstrict-aliasing -fomit-frame-pointer
++CCOPTS += -I./examples/djs -I./src   # duktape.h and duk_config.h must be in include path
++CCLIBS = -lm
++
++# Enable print() and alert() for command line using an optional extra module.
++CCOPTS += -DDUK_CMDLINE_PRINTALERT_SUPPORT -I./extras/print-alert
++CMDLINE_SOURCES += extras/print-alert/duk_print_alert.c
++
++# Enable console object (console.log() etc) for command line.
++CCOPTS += -DDUK_CMDLINE_CONSOLE_SUPPORT -I./extras/console
++CMDLINE_SOURCES += extras/console/duk_console.c
++
++# Enable Duktape.Logger for command line.
++CCOPTS += -DDUK_CMDLINE_LOGGING_SUPPORT -I./extras/logging
++CMDLINE_SOURCES += extras/logging/duk_logging.c
++
++# Enable Duktape 1.x module loading for command line.
++CCOPTS += -DDUK_CMDLINE_MODULE_SUPPORT -I./extras/module-duktape
++CMDLINE_SOURCES += extras/module-duktape/duk_module_duktape.c
++
++# Enable Trivial readFile/writeFile bindings for testing.
++CCOPTS += -DDUK_CMDLINE_FILEIO
++
++djs: $(DUKTAPE_SOURCES) $(CMDLINE_SOURCES)
++	$(CC) -o $@ $(DEFINES) $(CCOPTS) $(DUKTAPE_SOURCES) $(CMDLINE_SOURCES) $(CCLIBS)
+diff -Naur duktape-2.4.0.old/examples/djs/duk_js.c duktape-2.4.0/examples/djs/duk_js.c
+--- duktape-2.4.0.old/examples/djs/duk_js.c	1969-12-31 21:00:00.000000000 -0300
++++ duktape-2.4.0/examples/djs/duk_js.c	2019-09-09 10:33:36.000000000 -0300
+@@ -0,0 +1,743 @@
++#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || \
++    defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
++/* Suppress warnings about plain fopen() etc. */
++#define _CRT_SECURE_NO_WARNINGS
++#if defined(_MSC_VER) && (_MSC_VER < 1900)
++/* Workaround for snprintf() missing in older MSVC versions.
++ * Note that _snprintf() may not NUL terminate the string, but
++ * this difference does not matter here as a NUL terminator is
++ * always explicitly added.
++ */
++#define snprintf _snprintf
++#endif
++#endif
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#if defined(DUK_CMDLINE_PRINTALERT_SUPPORT)
++#include "duk_print_alert.h"
++#endif
++#if defined(DUK_CMDLINE_CONSOLE_SUPPORT)
++#include "duk_console.h"
++#endif
++#if defined(DUK_CMDLINE_LOGGING_SUPPORT)
++#include "duk_logging.h"
++#endif
++#if defined(DUK_CMDLINE_MODULE_SUPPORT)
++#include "duk_module_duktape.h"
++#endif
++#if defined(DUK_CMDLINE_CBOR_SUPPORT)
++#include "duk_cbor.h"
++#endif
++#if defined(DUK_CMDLINE_FILEIO)
++#include <errno.h>
++#endif
++#include "duktape.h"
++
++#include "duk_js.h"
++
++#if defined(DUK_CMDLINE_DEBUGGER_SUPPORT)
++#include "duk_trans_socket.h"
++#endif
++
++#define  MEM_LIMIT_NORMAL   (128*1024*1024)   /* 128 MB */
++#define  MEM_LIMIT_HIGH     (2047*1024*1024)  /* ~2 GB */
++#define  LINEBUF_SIZE       65536
++
++static int interactive_mode = 0;
++static int allow_bytecode = 0;
++
++int duk_cmdline_stack_check(void);
++
++/*
++ *  Misc helpers
++ */
++
++static void print_greet_line(void) {
++	printf("((o) Duktape%s %d.%d.%d (%s)\n",
++	       "",
++	       (int) (DUK_VERSION / 10000),
++	       (int) ((DUK_VERSION / 100) % 100),
++	       (int) (DUK_VERSION % 100),
++	       DUK_GIT_DESCRIBE);
++}
++
++static void cmdline_fatal_handler(void *udata, const char *msg) {
++	(void) udata;
++	fprintf(stderr, "*** FATAL ERROR: %s\n", msg ? msg : "no message");
++	fprintf(stderr, "Causing intentional segfault...\n");
++	fflush(stderr);
++	*((volatile unsigned int *) 0) = (unsigned int) 0xdeadbeefUL;
++	abort();
++}
++
++/* Print error to stderr and pop error. */
++static void print_pop_error(duk_context *ctx, FILE *f) {
++	fprintf(f, "%s\n", duk_safe_to_stacktrace(ctx, -1));
++	fflush(f);
++	duk_pop(ctx);
++}
++
++static duk_ret_t wrapped_compile_execute(duk_context *ctx, void *udata) {
++	const char *src_data;
++	duk_size_t src_len;
++	duk_uint_t comp_flags;
++
++	(void) udata;
++
++	/* XXX: Here it'd be nice to get some stats for the compilation result
++	 * when a suitable command line is given (e.g. code size, constant
++	 * count, function count.  These are available internally but not through
++	 * the public API.
++	 */
++
++	/* Use duk_compile_lstring_filename() variant which avoids interning
++	 * the source code.  This only really matters for low memory environments.
++	 */
++
++	/* [ ... bytecode_filename src_data src_len filename ] */
++
++	src_data = (const char *) duk_require_pointer(ctx, -3);
++	src_len = (duk_size_t) duk_require_uint(ctx, -2);
++
++	if (src_data != NULL && src_len >= 1 && src_data[0] == (char) 0xbf) {
++		/* Bytecode. */
++		if (allow_bytecode) {
++			void *buf;
++			buf = duk_push_fixed_buffer(ctx, src_len);
++			memcpy(buf, (const void *) src_data, src_len);
++			duk_load_function(ctx);
++		} else {
++			(void) duk_type_error(ctx, "bytecode input rejected (use -b to allow bytecode inputs)");
++		}
++	} else {
++		/* Source code. */
++		comp_flags = DUK_COMPILE_SHEBANG;
++		duk_compile_lstring_filename(ctx, comp_flags, src_data, src_len);
++	}
++
++	/* [ ... bytecode_filename src_data src_len function ] */
++
++	/* Optional bytecode dump. */
++	if (duk_is_string(ctx, -4)) {
++		FILE *f;
++		void *bc_ptr;
++		duk_size_t bc_len;
++		size_t wrote;
++		char fnbuf[256];
++		const char *filename;
++
++		duk_dup_top(ctx);
++		duk_dump_function(ctx);
++		bc_ptr = duk_require_buffer_data(ctx, -1, &bc_len);
++		filename = duk_require_string(ctx, -5);
++		snprintf(fnbuf, sizeof(fnbuf), "%s", filename);
++		fnbuf[sizeof(fnbuf) - 1] = (char) 0;
++
++		f = fopen(fnbuf, "wb");
++		if (!f) {
++			(void) duk_generic_error(ctx, "failed to open bytecode output file");
++		}
++		wrote = fwrite(bc_ptr, 1, (size_t) bc_len, f);  /* XXX: handle partial writes */
++		(void) fclose(f);
++		if (wrote != bc_len) {
++			(void) duk_generic_error(ctx, "failed to write all bytecode");
++		}
++
++		return 0;  /* duk_safe_call() cleans up */
++	}
++
++	duk_push_global_object(ctx);  /* 'this' binding */
++	duk_call_method(ctx, 0);
++
++	if (interactive_mode) {
++		/*
++		 *  In interactive mode, write to stdout so output won't
++		 *  interleave as easily.
++		 *
++		 *  NOTE: the ToString() coercion may fail in some cases;
++		 *  for instance, if you evaluate:
++		 *
++		 *    ( {valueOf: function() {return {}},
++		 *       toString: function() {return {}}});
++		 *
++		 *  The error is:
++		 *
++		 *    TypeError: coercion to primitive failed
++		 *            duk_api.c:1420
++		 *
++		 *  These are handled now by the caller which also has stack
++		 *  trace printing support.  User code can print out errors
++		 *  safely using duk_safe_to_string().
++		 */
++
++		duk_push_global_stash(ctx);
++		duk_get_prop_string(ctx, -1, "dukFormat");
++		duk_dup(ctx, -3);
++		duk_call(ctx, 1);  /* -> [ ... res stash formatted ] */
++
++		fprintf(stdout, "= %s\n", duk_to_string(ctx, -1));
++		fflush(stdout);
++	} else {
++		/* In non-interactive mode, success results are not written at all.
++		 * It is important that the result value is not string coerced,
++		 * as the string coercion may cause an error in some cases.
++		 */
++	}
++
++	return 0;  /* duk_safe_call() cleans up */
++}
++
++/*
++ *  Execute from file handle etc
++ */
++
++static int handle_fh(duk_context *ctx, FILE *f, const char *filename, const char *bytecode_filename) {
++	char *buf = NULL;
++	size_t bufsz;
++	size_t bufoff;
++	size_t got;
++	int rc;
++	int retval = -1;
++
++	buf = (char *) malloc(1024);
++	if (!buf) {
++		goto error;
++	}
++	bufsz = 1024;
++	bufoff = 0;
++
++	/* Read until EOF, avoid fseek/stat because it won't work with stdin. */
++	for (;;) {
++		size_t avail;
++
++		avail = bufsz - bufoff;
++		if (avail < 1024) {
++			size_t newsz;
++			char *buf_new;
++#if 0
++			fprintf(stderr, "resizing read buffer: %ld -> %ld\n", (long) bufsz, (long) (bufsz * 2));
++#endif
++			newsz = bufsz + (bufsz >> 2) + 1024;  /* +25% and some extra */
++			buf_new = (char *) realloc(buf, newsz);
++			if (!buf_new) {
++				goto error;
++			}
++			buf = buf_new;
++			bufsz = newsz;
++		}
++
++		avail = bufsz - bufoff;
++#if 0
++		fprintf(stderr, "reading input: buf=%p bufsz=%ld bufoff=%ld avail=%ld\n",
++		        (void *) buf, (long) bufsz, (long) bufoff, (long) avail);
++#endif
++
++		got = fread((void *) (buf + bufoff), (size_t) 1, avail, f);
++#if 0
++		fprintf(stderr, "got=%ld\n", (long) got);
++#endif
++		if (got == 0) {
++			break;
++		}
++		bufoff += got;
++	}
++
++	duk_push_string(ctx, bytecode_filename);
++	duk_push_pointer(ctx, (void *) buf);
++	duk_push_uint(ctx, (duk_uint_t) bufoff);
++	duk_push_string(ctx, filename);
++
++	interactive_mode = 0;  /* global */
++
++	rc = duk_safe_call(ctx, wrapped_compile_execute, NULL /*udata*/, 4 /*nargs*/, 1 /*nret*/);
++
++	free(buf);
++	buf = NULL;
++
++	if (rc != DUK_EXEC_SUCCESS) {
++		print_pop_error(ctx, stderr);
++		goto error;
++	} else {
++		duk_pop(ctx);
++		retval = 0;
++	}
++	/* fall thru */
++
++ cleanup:
++	if (buf) {
++		free(buf);
++		buf = NULL;
++	}
++	return retval;
++
++ error:
++	fprintf(stderr, "error in executing file %s\n", filename);
++	fflush(stderr);
++	goto cleanup;
++}
++
++static int handle_file(duk_context *ctx, const char *filename, const char *bytecode_filename) {
++	FILE *f = NULL;
++	int retval;
++	char fnbuf[256];
++
++	/* Example of sending an application specific debugger notification. */
++	duk_push_string(ctx, "DebuggerHandleFile");
++	duk_push_string(ctx, filename);
++	duk_debugger_notify(ctx, 2);
++
++	snprintf(fnbuf, sizeof(fnbuf), "%s", filename);
++	fnbuf[sizeof(fnbuf) - 1] = (char) 0;
++
++	f = fopen(fnbuf, "rb");
++	if (!f) {
++		fprintf(stderr, "failed to open source file: %s\n", filename);
++		fflush(stderr);
++		goto error;
++	}
++
++	retval = handle_fh(ctx, f, filename, bytecode_filename);
++
++	fclose(f);
++	return retval;
++
++ error:
++	return -1;
++}
++
++static int handle_eval(duk_context *ctx, char *code) {
++	int rc;
++	int retval = -1;
++
++	duk_push_pointer(ctx, (void *) code);
++	duk_push_uint(ctx, (duk_uint_t) strlen(code));
++	duk_push_string(ctx, "eval");
++
++	interactive_mode = 0;  /* global */
++
++	rc = duk_safe_call(ctx, wrapped_compile_execute, NULL /*udata*/, 3 /*nargs*/, 1 /*nret*/);
++
++	if (rc != DUK_EXEC_SUCCESS) {
++		print_pop_error(ctx, stderr);
++	} else {
++		duk_pop(ctx);
++		retval = 0;
++	}
++
++	return retval;
++}
++
++/*
++ *  Simple file read/write bindings
++ */
++
++#if defined(DUK_CMDLINE_FILEIO)
++static duk_ret_t fileio_read_file(duk_context *ctx) {
++	const char *fn;
++	char *buf;
++	size_t len;
++	size_t off;
++	int rc;
++	FILE *f;
++
++	fn = duk_require_string(ctx, 0);
++	f = fopen(fn, "rb");
++	if (!f) {
++		(void) duk_type_error(ctx, "cannot open file %s for reading, errno %ld: %s",
++		                      fn, (long) errno, strerror(errno));
++	}
++
++	rc = fseek(f, 0, SEEK_END);
++	if (rc < 0) {
++		(void) fclose(f);
++		(void) duk_type_error(ctx, "fseek() failed for %s, errno %ld: %s",
++		                      fn, (long) errno, strerror(errno));
++	}
++	len = (size_t) ftell(f);
++	rc = fseek(f, 0, SEEK_SET);
++	if (rc < 0) {
++		(void) fclose(f);
++		(void) duk_type_error(ctx, "fseek() failed for %s, errno %ld: %s",
++		                      fn, (long) errno, strerror(errno));
++	}
++
++	buf = (char *) duk_push_fixed_buffer(ctx, (duk_size_t) len);
++	for (off = 0; off < len;) {
++		size_t got;
++		got = fread((void *) (buf + off), 1, len - off, f);
++		if (ferror(f)) {
++			(void) fclose(f);
++			(void) duk_type_error(ctx, "error while reading %s", fn);
++		}
++		if (got == 0) {
++			if (feof(f)) {
++				break;
++			} else {
++				(void) fclose(f);
++				(void) duk_type_error(ctx, "error while reading %s", fn);
++			}
++		}
++		off += got;
++	}
++
++	if (f) {
++		(void) fclose(f);
++	}
++
++    duk_buffer_to_string(ctx, -1);
++
++	return 1;
++}
++
++static duk_ret_t fileio_write_file(duk_context *ctx) {
++	const char *fn;
++	const char *buf;
++	size_t len;
++	size_t off;
++	FILE *f;
++
++	fn = duk_require_string(ctx, 0);
++	f = fopen(fn, "wb");
++	if (!f) {
++		(void) duk_type_error(ctx, "cannot open file %s for writing, errno %ld: %s",
++		          fn, (long) errno, strerror(errno));
++	}
++
++	len = 0;
++	buf = (char *) duk_require_buffer_data(ctx, 1, &len);
++	for (off = 0; off < len;) {
++		size_t got;
++		got = fwrite((const void *) (buf + off), 1, len - off, f);
++		if (ferror(f)) {
++			(void) fclose(f);
++			(void) duk_type_error(ctx, "error while writing %s", fn);
++		}
++		if (got == 0) {
++			(void) fclose(f);
++			(void) duk_type_error(ctx, "error while writing %s", fn);
++		}
++		off += got;
++	}
++
++	if (f) {
++		(void) fclose(f);
++	}
++
++	return 0;
++}
++#endif  /* DUK_CMDLINE_FILEIO */
++
++/*
++ *  String.fromBufferRaw()
++ */
++
++static duk_ret_t string_frombufferraw(duk_context *ctx) {
++	duk_buffer_to_string(ctx, 0);
++	return 1;
++}
++
++/*
++ *  Duktape heap lifecycle
++ */
++
++static duk_context *create_duktape_heap(void) {
++	duk_context *ctx;
++
++	ctx = duk_create_heap(NULL, NULL, NULL, NULL, cmdline_fatal_handler);
++
++	if (!ctx) {
++		fprintf(stderr, "Failed to create Duktape heap\n");
++		fflush(stderr);
++		exit(1);
++	}
++
++	/* Register print() and alert() (removed in Duktape 2.x). */
++#if defined(DUK_CMDLINE_PRINTALERT_SUPPORT)
++	duk_print_alert_init(ctx, 0 /*flags*/);
++#endif
++
++	/* Register String.fromBufferRaw() which does a 1:1 buffer-to-string
++	 * coercion needed by testcases.  String.fromBufferRaw() is -not- a
++	 * default built-in!  For stripped builds the 'String' built-in
++	 * doesn't exist and we create it here; for ROM builds it may be
++	 * present but unwritable (which is ignored).
++	 */
++	duk_eval_string(ctx,
++		"(function(v){"
++		    "if (typeof String === 'undefined') { String = {}; }"
++		    "Object.defineProperty(String, 'fromBufferRaw', {value:v, configurable:true});"
++		"})");
++	duk_push_c_function(ctx, string_frombufferraw, 1 /*nargs*/);
++	(void) duk_pcall(ctx, 1);
++	duk_pop(ctx);
++
++	/* Register console object. */
++#if defined(DUK_CMDLINE_CONSOLE_SUPPORT)
++	duk_console_init(ctx, DUK_CONSOLE_FLUSH /*flags*/);
++#endif
++
++	/* Register Duktape.Logger (removed in Duktape 2.x). */
++#if defined(DUK_CMDLINE_LOGGING_SUPPORT)
++	duk_logging_init(ctx, 0 /*flags*/);
++#endif
++
++	/* Trivial readFile/writeFile bindings for testing. */
++#if defined(DUK_CMDLINE_FILEIO)
++	duk_push_c_function(ctx, fileio_read_file, 1 /*nargs*/);
++	duk_put_global_string(ctx, "readFile");
++	duk_push_c_function(ctx, fileio_write_file, 2 /*nargs*/);
++	duk_put_global_string(ctx, "writeFile");
++#endif
++
++	/* Register require() (removed in Duktape 2.x). */
++#if defined(DUK_CMDLINE_MODULE_SUPPORT)
++	duk_eval_string(ctx,
++		"Duktape.modSearch = function (id, require, exports, module) {\n"
++			"var base = scriptArgs[0].replace(/[^\\/]+$/, '');\n"
++			"var res = readFile(base + id + '.js');\n"
++            "if (typeof res === 'string') {\n"
++            "    return res;\n"
++            "} else {\n"
++            "    throw new Error('module not found: ' + id);\n"
++            "}\n"
++		"}\n"
++	);
++	duk_module_duktape_init(ctx);
++#endif
++
++	/* Register CBOR. */
++#if defined(DUK_CMDLINE_CBOR_SUPPORT)
++	duk_cbor_init(ctx, 0 /*flags*/);
++#endif
++
++	/* Stash a formatting function for evaluation results. */
++	duk_push_global_stash(ctx);
++	duk_eval_string(ctx,
++		"(function (E) {"
++		    "return function format(v){"
++		        "try{"
++		            "return E('jx',v);"
++		        "}catch(e){"
++		            "return ''+v;"
++		        "}"
++		    "};"
++		"})(Duktape.enc)");
++	duk_put_prop_string(ctx, -2, "dukFormat");
++	duk_pop(ctx);
++
++	return ctx;
++}
++
++static void destroy_duktape_heap(duk_context *ctx) {
++	if (ctx) {
++		duk_destroy_heap(ctx);
++	}
++}
++
++static int handle_interactive(duk_context *ctx) {
++	const char *prompt = "duk> ";
++	char *buffer = NULL;
++	int retval = 0;
++	int rc;
++	int got_eof = 0;
++
++	buffer = (char *) malloc(LINEBUF_SIZE);
++	if (!buffer) {
++		fprintf(stderr, "failed to allocated a line buffer\n");
++		fflush(stderr);
++		retval = -1;
++		goto done;
++	}
++
++	while (!got_eof) {
++		size_t idx = 0;
++
++		fwrite(prompt, 1, strlen(prompt), stdout);
++		fflush(stdout);
++
++		for (;;) {
++			int c = fgetc(stdin);
++			if (c == EOF) {
++				got_eof = 1;
++				break;
++			} else if (c == '\n') {
++				break;
++			} else if (idx >= LINEBUF_SIZE) {
++				fprintf(stderr, "line too long\n");
++				fflush(stderr);
++				retval = -1;
++				goto done;
++			} else {
++				buffer[idx++] = (char) c;
++			}
++		}
++
++		duk_push_pointer(ctx, (void *) buffer);
++		duk_push_uint(ctx, (duk_uint_t) idx);
++		duk_push_string(ctx, "input");
++
++		interactive_mode = 1;  /* global */
++
++		rc = duk_safe_call(ctx, wrapped_compile_execute, NULL /*udata*/, 3 /*nargs*/, 1 /*nret*/);
++
++		if (rc != DUK_EXEC_SUCCESS) {
++			/* in interactive mode, write to stdout */
++			print_pop_error(ctx, stdout);
++			retval = -1;  /* an error 'taints' the execution */
++		} else {
++			duk_pop(ctx);
++		}
++	}
++
++ done:
++	if (buffer) {
++		free(buffer);
++		buffer = NULL;
++	}
++
++	return retval;
++}
++
++/*
++ *  Main
++ */
++
++int main(int argc, char *argv[]) {
++	duk_context *ctx = NULL;
++	int retval = 0;
++	int have_eval = 0;
++	int interactive = 0;
++	int no_heap_destroy = 0;
++	int i;
++    int last_i;
++    int script_i = 0;
++    char **script_argv = NULL;
++    int script_argc = 0;
++
++	/*
++	 *  Create heap
++	 */
++
++	ctx = create_duktape_heap();
++
++	/*
++	 *  Parse options
++	 */
++	for (i = 1; i < argc; i++) {
++        char *arg = argv[i];
++		if (strcmp(arg, "-i") == 0) {
++			interactive = 1;
++		} else if (strcmp(arg, "-b") == 0) {
++			allow_bytecode = 1;
++		} else if (strcmp(arg, "-e") == 0) {
++			have_eval = 1;
++			if (i == argc - 1) {
++				goto usage;
++			}
++			i++;  /* skip code */
++		} else if (arg[0] == '-') {
++			goto usage;
++		} else {
++			script_i = i;
++            script_argv = argv+i;
++            script_argc = argc-i;
++            break;
++		}
++	}
++	if (script_i < 1 && !have_eval) {
++		interactive = 1;
++	}
++
++    last_i = i;
++
++	/*
++	 *  Execute code in command line
++	 */
++
++	for (i = 1; i < last_i; i++) {
++		char *arg = argv[i];
++		if (strcmp(arg, "-e") == 0) {
++			if (handle_eval(ctx, argv[i+1]) != 0) {
++				retval = 1;
++				goto cleanup;
++			}
++			i++;  /* skip code */
++		}
++	}
++
++	/*
++	 *  Execute code from file
++	 */
++
++    if (script_i > 0) {
++        /* push arguments */
++        duk_push_array(ctx);
++        for (i = 0; i < script_argc; i++) {
++            duk_push_string(ctx, script_argv[i]);
++            duk_put_prop_index(ctx, -2, i);
++        }
++        duk_push_int(ctx, script_argc);
++        duk_put_prop_literal(ctx, -2, "length");
++        duk_put_global_literal(ctx, "scriptArgs");
++        /* run script */
++        if (handle_file(ctx, argv[script_i], NULL) != 0) {
++            retval = 1;
++            goto cleanup;
++        }
++    }
++
++	/*
++	 *  Enter interactive mode if options indicate it
++	 */
++
++	if (interactive) {
++		print_greet_line();
++		if (handle_interactive(ctx) != 0) {
++			retval = 1;
++			goto cleanup;
++		}
++	}
++
++	/*
++	 *  Cleanup and exit
++	 */
++
++ cleanup:
++	if (interactive) {
++		fprintf(stderr, "Cleaning up...\n");
++		fflush(stderr);
++	}
++
++	if (ctx && no_heap_destroy) {
++		duk_gc(ctx, 0);
++	}
++	if (ctx && !no_heap_destroy) {
++		destroy_duktape_heap(ctx);
++	}
++	ctx = NULL;
++
++	return retval;
++
++	/*
++	 *  Usage
++	 */
++
++ usage:
++	fprintf(stderr, "Usage: djs [options] [<script> [args]]\n"
++	                "\n"
++	                "   -i                 enter interactive mode after executing argument file(s) / eval code\n"
++	                "   -e CODE            evaluate code\n"
++	                "   -b                 allow bytecode input files (memory unsafe for invalid bytecode)\n"
++	                "If <script> is omitted, interactive mode is started automatically.\n"
++	                "\n"
++	                "Input files can be either ECMAScript source files or bytecode files\n"
++	                "(if -b is given).  Bytecode files are not validated prior to loading,\n"
++	                "so that incompatible or crafted files can cause memory unsafe behavior.\n"
++	                "See discussion in\n"
++	                "https://github.com/svaarala/duktape/blob/master/doc/bytecode.rst#memory-safety-and-bytecode-validation.\n");
++	fflush(stderr);
++	exit(1);
++}
+diff -Naur duktape-2.4.0.old/examples/djs/duk_js.h duktape-2.4.0/examples/djs/duk_js.h
+--- duktape-2.4.0.old/examples/djs/duk_js.h	1969-12-31 21:00:00.000000000 -0300
++++ duktape-2.4.0/examples/djs/duk_js.h	2019-07-28 17:34:21.000000000 -0300
+@@ -0,0 +1,16 @@
++#if !defined(DUK_CMDLINE_H_INCLUDED)
++#define DUK_CMDLINE_H_INCLUDED
++
++/* Defined in duk_cmdline_lowmem.c. */
++extern void *lowmem_pool_ptr;
++void lowmem_init(void);
++void lowmem_free(void);
++void lowmem_dump(void);
++void lowmem_register(duk_context *ctx);
++void lowmem_start_exec_timeout(void);
++void lowmem_clear_exec_timeout(void);
++void *lowmem_alloc_wrapped(void *udata, duk_size_t size);
++void *lowmem_realloc_wrapped(void *udata, void *ptr, duk_size_t size);
++void lowmem_free_wrapped(void *udata, void *ptr);
++
++#endif  /* DUK_CMDLINE_H_INCLUDED */

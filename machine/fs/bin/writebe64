@@ -1,0 +1,3 @@
+#!/usr/bin/lua
+local arg = {...}
+io.write(string.pack(">I8z", arg[1], arg[2] or ""))

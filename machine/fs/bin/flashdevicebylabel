@@ -1,0 +1,10 @@
+#!/bin/sh
+
+for t in /dev/mtdblock*; do
+	name=$(cat /sys/block/$(basename $t)/device/name)
+	if [ "$name" = $1 ]; then
+		echo $t
+		exit 0
+	fi
+done
+exit 1

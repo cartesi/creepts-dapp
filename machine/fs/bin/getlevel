@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd $(dirname $0)
+dd status=none if=$(./flashdevicebylabel level) ibs=8 | ./readbe64
