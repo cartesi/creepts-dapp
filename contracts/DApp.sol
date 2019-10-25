@@ -1,14 +1,14 @@
-/// @title Dapp
+/// @title DApp
 /// @author Stephen Chen
 pragma solidity ^0.5.0;
 
+import "./DAppInterface.sol";
 import "./RevealInterface.sol";
 import "./MatchManagerInterface.sol";
 import "./Decorated.sol";
-import "./Instantiator.sol";
 
 
-contract DApp is Decorated, Instantiator {
+contract DApp is Decorated, DAppInterface {
     address public owner;
 
     enum state {
@@ -22,7 +22,6 @@ contract DApp is Decorated, Instantiator {
         MatchManagerInterface mm;
         uint256 revealIndex;
         uint256 matchManagerIndex;
-        address machineAddress;
         bytes32 initialHash; // initial hash of cartesi machine of the tournament
         bytes32 tournamentName; // name of the tournament
 
@@ -39,7 +38,8 @@ contract DApp is Decorated, Instantiator {
     function instantiate(
         address _rmAddress,
         address _mmAddress,
-        address _machineAddress,
+        uint256 _commitDuration,
+        uint256 _revealDuration,
         bytes32 _initialHash,
         bytes32 _tournamentName) public
         onlyBy(owner)
@@ -48,15 +48,14 @@ contract DApp is Decorated, Instantiator {
         instance[currentIndex].rm = RevealInterface(_rmAddress);
         instance[currentIndex].mm = MatchManagerInterface(_mmAddress);
 
-        instance[currentIndex].machineAddress = _machineAddress;
         instance[currentIndex].initialHash = _initialHash;
         instance[currentIndex].tournamentName = _tournamentName;
 
         instance[currentIndex].currentState = state.WaitingCommitAndReveal;
         instance[currentIndex].revealIndex = instance[currentIndex].rm.instantiate(
-            200, //commit duration
-            200, //reveal duration
-            _initialHash //inital hash
+            _commitDuration,
+            _revealDuration,
+            _initialHash
         );
 
         active[currentIndex] = true;
@@ -65,7 +64,13 @@ contract DApp is Decorated, Instantiator {
         return;
     }
 
-    function claimMatches(uint256 _index) public
+    function claimMatches(
+        uint256 _index,
+        address _machineAddress,
+        uint256 _epochDuration,
+        uint256 _matchDuration,
+        uint256 _roundDuration,
+        uint256 _finalTime) public
         onlyBy(owner)
         onlyInstantiated(_index)
     {
@@ -77,13 +82,13 @@ contract DApp is Decorated, Instantiator {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
-                100, //epoch duration
-                50, //match duration
-                25, //round duration
-                13000, //final time
+                _epochDuration,
+                _matchDuration,
+                _roundDuration,
+                _finalTime,
                 address(this), // dapp address
                 _index, // dapp index
-                instance[_index].machineAddress);
+                _machineAddress);
         } else {
             revert("The subinstance commit and reveal is still active");
         }
