@@ -1,0 +1,6 @@
+[submodule "contracts/tournament-dlib"]
+	path = contracts/tournament-dlib
+	url = https://github.com/cartesi-corp/tournament-dlib
+[submodule "tournament-dlib"]
+	path = tournament-dlib
+	url = https://github.com/cartesi-corp/tournament-dlib
