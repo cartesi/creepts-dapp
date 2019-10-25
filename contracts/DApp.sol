@@ -12,7 +12,7 @@ contract DApp is Decorated, DAppInterface {
     address public owner;
 
     enum state {
-        WaitingCommitAndReveal,
+        WaitingCommitAndReveal, // TODO: split into two states: WaitingCommit and WaitingReveal
         WaitingMatches,
         DAppFinished
     }
