@@ -49,7 +49,7 @@ $ packlog test-logs/22.json 22.json.br.tar
 You are finally ready to run the verifier on this log.
 
 ```bash
-$ ./anuto.lua --log-backing=22.json.br.tar --level=22 --auto-length
+$ ./anuto.lua --log-backing=22.json.br.tar --level=0 --auto-length
 ```
 
 This should run the verifier and print a variety of diagnostics information on
