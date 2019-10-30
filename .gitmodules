@@ -1,3 +1,6 @@
 [submodule "tournament-dlib"]
 	path = tournament-dlib
 	url = ../tournament-dlib
+[submodule "dispatcher"]
+	path = dispatcher
+	url = git@github.com:cartesi-corp/dispatcher.git
