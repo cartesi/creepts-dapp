@@ -22,7 +22,7 @@ contract DApp is Decorated, DAppInterface {
         MatchManagerInterface mm;
         uint256 revealIndex;
         uint256 matchManagerIndex;
-        bytes32 initialHash; // initial hash of cartesi machine of the tournament
+        bytes32 setupHash; // initial hash of cartesi machine of the tournament
         bytes32 tournamentName; // name of the tournament
 
         state currentState;
@@ -40,7 +40,11 @@ contract DApp is Decorated, DAppInterface {
         address _mmAddress,
         uint256 _commitDuration,
         uint256 _revealDuration,
-        bytes32 _initialHash,
+        uint256 _scoreWordPosition,
+        uint256 _logDrivePosition,
+        uint256 _scoreDriveLogSize,
+        uint256 _logDriveLogSize,
+        bytes32 _setupHash,
         bytes32 _tournamentName) public
         onlyBy(owner)
     {
@@ -48,14 +52,18 @@ contract DApp is Decorated, DAppInterface {
         instance[currentIndex].rm = RevealInterface(_rmAddress);
         instance[currentIndex].mm = MatchManagerInterface(_mmAddress);
 
-        instance[currentIndex].initialHash = _initialHash;
+        instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].tournamentName = _tournamentName;
 
         instance[currentIndex].currentState = state.WaitingCommitAndReveal;
         instance[currentIndex].revealIndex = instance[currentIndex].rm.instantiate(
             _commitDuration,
             _revealDuration,
-            _initialHash
+            _scoreWordPosition,
+            _logDrivePosition,
+            _scoreDriveLogSize,
+            _logDriveLogSize,
+            _setupHash
         );
 
         active[currentIndex] = true;
@@ -64,6 +72,7 @@ contract DApp is Decorated, DAppInterface {
         return;
     }
 
+    // TO-DO: This shouldnt be here, all parameters should be decided on instantiate, otherwise we have to control the game.
     function claimMatches(
         uint256 _index,
         address _machineAddress,
@@ -76,9 +85,9 @@ contract DApp is Decorated, DAppInterface {
     {
         require(instance[_index].currentState == state.WaitingCommitAndReveal, "The state is not WaitingCommitAndReveal");
 
-        bytes32 revealState = instance[currentIndex].rm.getCurrentState(instance[_index].revealIndex, msg.sender);
+        bytes32 revealState = instance[currentIndex].rm.getCurrentState(instance[_index].revealIndex);
 
-        if (revealState == "PhaseFinished") {
+        if (revealState == "CommitRevealDone") {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
@@ -121,7 +130,7 @@ contract DApp is Decorated, DAppInterface {
         onlyInstantiated(_index)
         returns (bytes32, bytes32, bytes32)
     {
-        return (instance[_index].tournamentName, instance[_index].initialHash, getCurrentState(_index, _user));
+        return (instance[_index].tournamentName, instance[_index].setupHash, getCurrentState(_index, _user));
     }
 
     function getCurrentState(uint256 _index, address) public view
