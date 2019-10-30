@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$#" -ne 2 ]; then
+    echo $0 "<input-log> <log-drive>"
+    exit 1
+fi
+
 tmpdir=$(mktemp -d -t anuto-XXXXXXXXXX)
 (cp $1 /$tmpdir/log.json; cd $tmpdir; brotli log.json; tar -cf log.json.br.tar log.json.br)
 cp $tmpdir/log.json.br.tar $2
