@@ -4,3 +4,6 @@
 [submodule "dispatcher"]
 	path = dispatcher
 	url = git@github.com:cartesi-corp/dispatcher.git
+[submodule "dapp/grpc-interfaces"]
+	path = dapp/grpc-interfaces
+	url = git@github.com:cartesi-corp/grpc-interfaces.git
