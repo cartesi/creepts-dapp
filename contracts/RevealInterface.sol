@@ -29,6 +29,8 @@ contract RevealInterface is Instantiator {
 
     function playerExist(uint256 _index, address _playerAddr) public returns (bool);
 
+    function hasRevealed(uint256 _index, address _playerAddr) public returns (bool);
+
     function isConcerned(uint256 _index, address _user) public view returns (bool);
 
     function getCurrentState(uint256 _index) public view returns (bytes32);
@@ -37,7 +39,7 @@ contract RevealInterface is Instantiator {
     public view returns (
         uint256[6] memory _uintValues,  
         bytes32 pristineHash,
-        bool hasRevealed,
+        bool revealed,
 
         bytes32 currentState
     );
