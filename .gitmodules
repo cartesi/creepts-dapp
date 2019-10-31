@@ -1,9 +1,3 @@
 [submodule "tournament-dlib"]
 	path = tournament-dlib
 	url = ../tournament-dlib
-[submodule "dispatcher"]
-	path = dispatcher
-	url = ../dispatcher.git
-[submodule "dapp/grpc-interfaces"]
-	path = dapp/grpc-interfaces
-	url = ../grpc-interfaces.git
