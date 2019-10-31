@@ -18,32 +18,35 @@
 
 local cartesi = require"cartesi"
 
-local PAGE_LENGTH           = 1<<12
+local PAGE_LENGTH             = 1<<12
 
-local ROOT_DEVICE_START     = (1<<63)+(0<<61)
-local ROOT_DEVICE_LENGTH    = nil -- auto-detect for now
-local ROOT_DEVICE_BACKING   = "rootfs.ext2"
-local ANUTO_DEVICE_START    = (1<<63)+(1<<61)
-local ANUTO_DEVICE_LENGTH   = nil -- auto-detect for now
-local ANUTO_DEVICE_BACKING  = "anutofs.ext2"
-local LOG_DEVICE_START      = (1<<63)+(2<<61)
-local LOG_DEVICE_LENGTH     = nil -- auto-detect for now
-local LOG_DEVICE_BACKING    = nil
-local LEVEL_DEVICE_START    = (1<<63)+(2<<61)+(1<<60)
-local LEVEL_DEVICE_LENGTH   = 4<<10 -- 4KB
-local LEVEL_DEVICE_BACKING  =  nil -- "level.bin"
+local ROOT_DEVICE_START       = (1<<63)+(0<<61)
+local ROOT_DEVICE_LENGTH      = nil -- auto-detect for now
+local ROOT_DEVICE_BACKING     = "rootfs.ext2"
+local ANUTO_DEVICE_START      = (1<<63)+(1<<61)
+local ANUTO_DEVICE_LENGTH     = nil -- auto-detect for now
+local ANUTO_DEVICE_BACKING    = "anutofs.ext2"
+local LOG_DEVICE_START        = (1<<63)+(2<<61)
+local LOG_DEVICE_LOG2_SIZE    = nil -- auto-detect for now
+local LOG_DEVICE_LENGTH       = nil -- auto-detect for now
+local LOG_DEVICE_BACKING      = nil
+local LEVEL_DEVICE_START      = (1<<63)+(2<<61)+(1<<60)
+local LEVEL_DEVICE_LOG2_SIZE  = 12 -- 4KB
+local LEVEL_DEVICE_LENGTH     = 1 << LEVEL_DEVICE_LOG2_SIZE
+local LEVEL_DEVICE_BACKING    = nil -- "level.bin"
+local OUTPUT_DEVICE_START     = (1<<63)+(3<<61)
+local OUTPUT_DEVICE_LOG2_SIZE = 12 -- 4KB
+local OUTPUT_DEVICE_LENGTH    = 1 << OUTPUT_DEVICE_LOG2_SIZE
+local OUTPUT_DEVICE_BACKING   = nil -- "output.bin"
+local RAM_LENGTH              = 512<<20 -- 512MB
+local RAM_IMAGE               = "kernel.bin"
+local ROM_IMAGE               = "rom.bin"
 
-local OUTPUT_DEVICE_START   = (1<<63)+(3<<61)
-local OUTPUT_DEVICE_LENGTH  = 4<<10 -- 4KB
-local OUTPUT_DEVICE_BACKING = nil -- "output.bin"
-local RAM_LENGTH            = 512<<20 -- 512MB
-local RAM_IMAGE             = "kernel.bin"
-local ROM_IMAGE             = "rom.bin"
-
-local auto_length           = false
-local print_config          = false
-local level                 = nil
-local max_mcycle            = 1<<61   -- reduce significantly before release
+local print_proofs            = false
+local auto_length             = false
+local print_config            = false
+local level                   = nil
+local max_mcycle              = 1<<61   -- reduce significantly before release
 
 -- Print help and exit
 local function help()
@@ -74,6 +77,18 @@ where options are:
 
   --ram-image=<filename>       image file for RAM
                                (default: "kernel.bin")
+
+  --print-proofs               print a variety of proofs
+                               1) Proof of level still zeroed in memory before
+                               it or the game log are written to their drives
+                               2) Proof of the level after it is written, but
+                               before the log is written
+                               3) Proof of the log after the level is written,
+                               bug before the log itself is written
+                               4) Proof of the log after it and the level are
+                               written
+                               5) Proof of the score after the machine is run
+                               on the log and level
 
   --level=<number>             level against which to score log
 
@@ -106,6 +121,11 @@ local options = {
     { "^%-%-print%-config$", function(all)
         if not all then return false end
         print_config = true
+        return true
+    end },
+    { "^%-%-print%-proofs$", function(all)
+        if not all then return false end
+        print_proofs = true
         return true
     end },
     { "^%-%-log%-backing%=(.*)$", function(o)
@@ -194,12 +214,14 @@ if OUTPUT_DEVICE_BACKING then
     f:close()
 end
 
-local function get_file_length(filename)
-    local file = io.open(filename, "rb")
-    if not file then return nil end
-    local size = file:seek("end")    -- get file size
-    file:close()
-    return size
+local function intlog2(value)
+    local i = 1
+    local j = 1
+    while i < value do
+        i = i*2
+        j = j+1
+    end
+    return j
 end
 
 local function get_file_length(filename)
@@ -296,8 +318,36 @@ local config = {
     rom = rom,
     ram = ram,
     flash = flash,
-    interactive = true -- comment out before release
+    -- interactive = true -- comment out before release
 }
+
+local function assert_proof(proof)
+    assert(proof, "proof generation failed")
+    local hash = proof.target_hash
+    for log2_size = proof.log2_size, 63 do
+        local bit = (proof.address & (1 << log2_size)) ~= 0
+        local first, second
+        if bit then
+            first, second = proof.sibling_hashes[63-log2_size+1], hash
+        else
+            first, second = hash, proof.sibling_hashes[63-log2_size+1]
+        end
+        hash = cartesi.keccak(first, second)
+    end
+    assert(hash == proof.root_hash, "proof verification failed")
+    return proof
+end
+
+local function clone(t)
+    if type(t) == "table" then
+        local u = {}
+        for i,v in pairs(t) do
+            assert(type(i) ~= "table", "table indices not supported")
+            u[i] = clone(v)
+        end
+        return u
+    else return t end
+end
 
 if print_config then
     io.write("bootargs:\n  '", bootargs, "'\n")
@@ -311,6 +361,37 @@ if print_config then
     end
 end
 
+local function hexaddress(address)
+    return string.format("0x%016x", address)
+end
+
+local function hexbytes(hash)
+    return (string.gsub(hash, ".", function(c)
+        return string.format("%02x", string.byte(c))
+    end))
+end
+
+local function print_json_proof_sibling_hashes(sibling_hashes, log2_size,
+    out, indent)
+    out:write('[\n')
+    for i, h in ipairs(sibling_hashes) do
+        out:write(indent,'"', hexbytes(h), '"')
+        if sibling_hashes[i+1] then out:write(',\n') end
+    end
+    out:write(' ]')
+end
+
+local function print_json_proof(proof, out, indent)
+    out:write('{\n')
+    out:write(indent, '"address": ', hexaddress(proof.address), ',\n')
+    out:write(indent, '"log2_size": ', proof.log2_size, ',\n')
+    out:write(indent, '"target_hash": "', hexbytes(proof.target_hash), '",\n')
+    out:write(indent, '"sibling_hashes": ')
+    print_json_proof_sibling_hashes(proof.sibling_hashes, proof.log2_size, out,
+        indent .. "  ")
+    out:write(",\n", indent, '"root_hash": "', hexbytes(proof.root_hash), '" }')
+end
+
 local machine = cartesi.machine(config)
 
 if not LEVEL_DEVICE_BACKING then
@@ -318,10 +399,87 @@ if not LEVEL_DEVICE_BACKING then
     machine:write_memory(LEVEL_DEVICE_START, string.pack(">I8", level))
 end
 
-machine:run(max_mcycle)
+if print_proofs then
+    -- create a copy of the configuration so we can modify it
+    local prove_level_config = clone(config)
+    -- make sure level and log devices have no backing so they are pristine
+    -- (i.e., filled with zeros) when we instantiate the machine
+    for i, f in ipairs(prove_level_config.flash) do
+        if f.start == LEVEL_DEVICE_START or f.start == LOG_DEVICE_START then
+            f.backing = nil
+        end
+    end
+    -- instantiate a temporary machine and get proof for the
+    -- word containing the level (which should be zero at this point)
+    local prove_level_machine = assert(cartesi.machine(prove_level_config))
+    io.stderr:write("computing state merkle tree\n")
+    assert(prove_level_machine:update_merkle_tree())
+    local proof = assert_proof(prove_level_machine:get_proof(
+        LEVEL_DEVICE_START, 3))
+    local be_level = assert(prove_level_machine:read_memory(
+        LEVEL_DEVICE_START, 8))
+    -- dump as json
+    io.stdout:write("level_before_write = {\n")
+    io.stdout:write("  \"level\": \"", hexbytes(be_level), "\",\n")
+    io.stdout:write("  \"proof\": ")
+    print_json_proof(proof, io.stdout, "    ")
+    io.stdout:write(" }\n")
+    prove_level_machine:destroy()
 
+    -- restore level backing to config (if any)
+    -- get log device size from config (rounded up to next power of two)
+    local log_device_log2_size
+    for i, f in ipairs(prove_level_config.flash) do
+        if f.start == LEVEL_DEVICE_START then
+            f.backing = LEVEL_DEVICE_BACKING
+        end
+        if f.start == LOG_DEVICE_START then
+            log_device_log2_size = intlog2(f.length)
+        end
+    end
+    -- instantiate a new temporary machine to obtain proofs
+    prove_level_machine = assert(cartesi.machine(prove_level_config))
+    if not LEVEL_DEVICE_BACKING then
+        -- write level directly to memory in big-endian format
+        prove_level_machine:write_memory(LEVEL_DEVICE_START,
+            string.pack(">I8", level))
+    end
+    -- get proof for word containing level, which should now be whatever was
+    -- passed in the command line
+    io.stderr:write("computing state merkle tree\n")
+    assert(prove_level_machine:update_merkle_tree())
+    proof = assert_proof(prove_level_machine:get_proof(LEVEL_DEVICE_START, 3))
+    be_level = assert(prove_level_machine:read_memory(LEVEL_DEVICE_START, 8))
+    io.stdout:write("level_after_write = {\n")
+    io.stdout:write("  \"level\": \"", hexbytes(be_level), "\",\n")
+    io.stdout:write("  \"proof\": ")
+    print_json_proof(proof, io.stdout, "    ")
+    io.stdout:write(" }\n")
+    -- get proof for empty log drive
+    proof = assert_proof(prove_level_machine:get_proof(LOG_DEVICE_START,
+        log_device_log2_size))
+    io.stdout:write("log_before_write = {\n")
+    io.stdout:write("  \"proof\": ")
+    print_json_proof(proof, io.stdout, "    ")
+    io.stdout:write(" }\n")
+    prove_level_machine:destroy()
+    -- get proof for log drive in complete machine
+    io.stderr:write("computing state merkle tree\n")
+    assert(machine:update_merkle_tree())
+    proof = assert_proof(machine:get_proof(LOG_DEVICE_START,
+        log_device_log2_size))
+    io.stdout:write("log_after_write = {\n")
+    io.stdout:write("  \"proof\": ")
+    print_json_proof(proof, io.stdout, "    ")
+    io.stdout:write(" }\n")
+end
+
+-- run machine until it halts or reaches max_mcycle
+machine:run(max_mcycle)
 local mcycle = machine:read_mcycle()
 
+-- if machine is halted, read score back and print
+-- other print score zero
 if machine:read_iflags_H() then
     -- read output device back
     local output = machine:read_memory(OUTPUT_DEVICE_START, OUTPUT_DEVICE_LENGTH)
@@ -330,4 +488,17 @@ if machine:read_iflags_H() then
     print(score, msg, mcycle)
 else
     print(0, "machine has not halted", mcycle)
+end
+
+-- print a proof of the
+if print_proofs then
+    io.stderr:write("computing state merkle tree\n")
+    assert(machine:update_merkle_tree())
+    io.stdout:write("score_at_completion = {\n")
+    local be_score = assert(machine:read_memory(OUTPUT_DEVICE_START, 8))
+    io.stdout:write("  \"score\": \"", hexbytes(be_score), "\",\n")
+    local proof = assert_proof(machine:get_proof(OUTPUT_DEVICE_START, 3))
+    io.stdout:write("  \"proof\": ")
+    print_json_proof(proof, io.stdout, "    ")
+    io.stdout:write(" }\n")
 end
