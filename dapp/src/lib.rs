@@ -27,7 +27,6 @@
 #![warn(unused_extern_crates)]
 pub mod anuto_dapp;
 
-extern crate compute;
 extern crate error;
 
 #[macro_use]
