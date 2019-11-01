@@ -37,6 +37,7 @@ extern crate dispatcher;
 extern crate ethabi;
 extern crate ethereum_types;
 extern crate transaction;
+extern crate tournament;
 
 use ethereum_types::{Address, U256};
 
