@@ -189,6 +189,10 @@ contract DApp is Decorated, DAppInterface {
         return instance[_index].rm.getFinalHash(_index, _playerAddr);
     }
 
+    function getLogHash(uint256 _index, address _playerAddr) public returns (bytes32) {
+        return instance[_index].rm.getLogHash(_index, _playerAddr);
+    }
+
     function hasRevealed(uint256 _index, address _playerAddr) public returns (bool) {
         return instance[_index].rm.hasRevealed(_index, _playerAddr);
     }
