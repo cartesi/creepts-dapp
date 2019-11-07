@@ -35,7 +35,7 @@ use super::transaction;
 use super::transaction::TransactionRequest;
 use super::ethereum_types::{Address, H256, U256};
 use super::tournament::{
-    cartesi_base, 
+    cartesi_base, MachineTemplate,
     MatchManager, RevealCommit,
     NewSessionRequest, NewSessionResult,
     EMULATOR_SERVICE_NAME, EMULATOR_METHOD_NEW};
@@ -113,28 +113,14 @@ impl DApp<()> for AnutoDApp {
                         ctx.current_state
                     ))),
                 )?;
-                match MatchManager::react(match_manager_instance, archive, &None, &()) {
-                    Ok(v) => {
-                        return Ok(v);
-                    },
-                    Err(e) => {
-                        match e.kind() {
-                            ErrorKind::ArchiveMissError(service, key, method, request) => {
-                                if service == EMULATOR_SERVICE_NAME &&
-                                method == EMULATOR_METHOD_NEW {
-                                    let request_deref: Vec<u8> = request.clone();
-                                    let mut processed_request: NewSessionRequest = request_deref.into();
-                                    processed_request.machine = build_machine();
-                                    return Err(Error::from(ErrorKind::ArchiveMissError(service.to_string(), key.to_string(), method.to_string(), processed_request.into())))
-                                }
-                                return Err(e);
-                            },
-                            _ => {
-                                return Err(e);
-                            }
-                        }
-                    }
-                }
+
+                let machine_request = build_machine().chain_err(|| format!("could not build machine message"))?;
+                let machine_template: MachineTemplate = MachineTemplate {
+                    machine: machine_request,
+                    drive_path: "anuto-log.ext2".to_string()
+                };
+                
+                return MatchManager::react(match_manager_instance, archive, &None, &machine_template);
                 // return control to match manager
             }
             _ => {
@@ -181,7 +167,7 @@ impl DApp<()> for AnutoDApp {
                     MatchManager::get_pretty_instance(
                         instance.sub_instances.get(1).unwrap(),
                         archive,
-                        &(),
+                        &Default::default(),
                     )
                     .unwrap()
                 )
@@ -205,6 +191,7 @@ impl DApp<()> for AnutoDApp {
 // may need to revise in the future
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+// TODO: revise all the values below for the anuto game
 macro_rules! drive_label_0 {
     () => ( "rootfs" )
 }
@@ -283,7 +270,7 @@ const TEST_ROM: Rom = Rom {
     backing: "rom-linux.bin"
 };
 
-fn build_machine() -> cartesi_base::MachineRequest {
+fn build_machine() -> Result<cartesi_base::MachineRequest> {
     let mut ram_msg = cartesi_base::RAM::new();
     ram_msg.set_length(TEST_RAM.length);
     ram_msg.set_backing(EMULATOR_BASE_PATH.to_string() + &TEST_RAM.backing.to_string());
@@ -294,8 +281,8 @@ fn build_machine() -> cartesi_base::MachineRequest {
     for drive in TEST_DRIVES.iter() {
         let drive_path = EMULATOR_BASE_PATH.to_string() + &drive.backing.to_string();
         // TODO: error handling for files metadata
-        let metadata = fs::metadata(TEST_BASE_PATH.to_string() + &drive.backing.to_string());
-        let drive_size = metadata.unwrap().len();
+        let metadata = fs::metadata(TEST_BASE_PATH.to_string() + &drive.backing.to_string())?;
+        let drive_size = metadata.len();
         let mut drive_msg = cartesi_base::Drive::new();
 
         drive_msg.set_start(drive_start);
@@ -321,5 +308,5 @@ fn build_machine() -> cartesi_base::MachineRequest {
     machine.set_ram(ram_msg);
     machine.set_flash(protobuf::RepeatedField::from_vec(drives_msg));
 
-    return machine;
+    return Ok(machine);
 }
