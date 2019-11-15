@@ -25,6 +25,14 @@ contract DApp is Decorated, DAppInterface {
         bytes32 setupHash; // initial hash of cartesi machine of the tournament
         bytes32 tournamentName; // name of the tournament
 
+        // MatchManager params
+        uint256 epochDuration;
+        uint256 matchDuration;
+        uint256 roundDuration;
+        uint256 finalTime;
+        address parentAddress;
+        uint256 parentInstance;
+        address machineAddress;
         state currentState;
     }
 
@@ -45,8 +53,14 @@ contract DApp is Decorated, DAppInterface {
         uint256 _scoreDriveLogSize,
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
-        bytes32 _tournamentName) public
-        onlyBy(owner)
+        bytes32 _tournamentName,
+
+        // MatchManager params
+        uint256 _epochDuration,
+        uint256 _matchDuration,
+        uint256 _roundDuration,
+        uint256 _finalTime,
+        address _machineAddress ) public onlyBy(owner)
     {
 
         instance[currentIndex].rm = RevealInterface(_rmAddress);
@@ -54,6 +68,14 @@ contract DApp is Decorated, DAppInterface {
 
         instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].tournamentName = _tournamentName;
+
+        instance[currentIndex].epochDuration = _epochDuration;
+        instance[currentIndex].matchDuration = _matchDuration;
+        instance[currentIndex].roundDuration = _roundDuration;
+        instance[currentIndex].finalTime = _finalTime;
+
+        instance[currentIndex].machineAddress = _machineAddress;
+
 
         instance[currentIndex].currentState = state.WaitingCommitAndReveal;
         instance[currentIndex].revealIndex = instance[currentIndex].rm.instantiate(
@@ -72,17 +94,7 @@ contract DApp is Decorated, DAppInterface {
         return;
     }
 
-    // TO-DO: This shouldnt be here, all parameters should be decided on instantiate, otherwise we have to control the game.
-    function claimMatches(
-        uint256 _index,
-        address _machineAddress,
-        uint256 _epochDuration,
-        uint256 _matchDuration,
-        uint256 _roundDuration,
-        uint256 _finalTime) public
-        onlyBy(owner)
-        onlyInstantiated(_index)
-    {
+    function claimMatches(uint256 _index) public onlyInstantiated(_index) {
         require(instance[_index].currentState == state.WaitingCommitAndReveal, "The state is not WaitingCommitAndReveal");
 
         bytes32 revealState = instance[currentIndex].rm.getCurrentState(instance[_index].revealIndex);
@@ -91,20 +103,19 @@ contract DApp is Decorated, DAppInterface {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
-                _epochDuration,
-                _matchDuration,
-                _roundDuration,
-                _finalTime,
+                instance[currentIndex].epochDuration,
+                instance[currentIndex].matchDuration,
+                instance[currentIndex].roundDuration,
+                instance[currentIndex].finalTime,
                 address(this), // dapp address
                 _index, // dapp index
-                _machineAddress);
+                instance[currentIndex].machineAddress);
         } else {
             revert("The subinstance commit and reveal is still active");
         }
     }
 
     function claimFinished(uint256 _index) public
-        onlyBy(owner)
         onlyInstantiated(_index)
     {
         require(instance[_index].currentState == state.WaitingMatches, "The state is not WaitingMatches");
