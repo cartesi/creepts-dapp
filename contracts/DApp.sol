@@ -139,9 +139,18 @@ contract DApp is Decorated, DAppInterface {
 
     function getState(uint256 _index, address _user) public view
         onlyInstantiated(_index)
-        returns (bytes32, bytes32, bytes32)
+        returns (
+            bytes32,
+            bytes32,
+            uint256,
+            bytes32
+        )
     {
-        return (instance[_index].tournamentName, instance[_index].setupHash, getCurrentState(_index, _user));
+        return (
+            instance[_index].tournamentName,
+            instance[_index].setupHash,
+            instance[_index].finalTime,
+            getCurrentState(_index, _user));
     }
 
     function getCurrentState(uint256 _index, address) public view
