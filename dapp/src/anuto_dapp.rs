@@ -52,6 +52,7 @@ pub struct AnutoDApp();
 struct AnutoDAppCtxParsed(
     String32Field,  // name of the tournament
     Bytes32Field,  // setupHash
+    U256Field,  // finalTime
     String32Field // currentState
 );
 
@@ -59,6 +60,7 @@ struct AnutoDAppCtxParsed(
 struct AnutoDAppCtx {
     tournament_name: String,
     setup_hash: H256,
+    final_time: U256,
     current_state: String
 }
 
@@ -67,7 +69,8 @@ impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
         AnutoDAppCtx {
             tournament_name: parsed.0.value,
             setup_hash: parsed.1.value,
-            current_state: parsed.2.value
+            final_time: parsed.2.value,
+            current_state: parsed.3.value
         }
     }
 }
@@ -144,7 +147,8 @@ impl DApp<()> for AnutoDApp {
                 let machine_request = build_machine().chain_err(|| format!("could not build machine message"))?;
                 let machine_template: MachineTemplate = MachineTemplate {
                     machine: machine_request,
-                    drive_path: "anuto-log.ext2".to_string()
+                    drive_path: "anuto-log.ext2".to_string(),
+                    final_time: ctx.final_time
                 };
                 
                 return MatchManager::react(match_manager_instance, archive, &None, &machine_template);
