@@ -131,9 +131,15 @@ impl DApp<()> for AnutoDApp {
                     return Ok(Reaction::Transaction(request));
 
                 }
+                let machine_request = build_machine().chain_err(|| format!("could not build machine message"))?;
+                let machine_template: MachineTemplate = MachineTemplate {
+                    machine: machine_request,
+                    drive_path: "anuto-log.ext2".to_string(),
+                    final_time: ctx.final_time.as_u64()
+                };
 
                 // if reveal is still active, pass control
-                return RevealCommit::react(reveal_instance, archive, post_action, &());
+                return RevealCommit::react(reveal_instance, archive, post_action, &machine_template);
             },
             "WaitingMatches" => {
                 // we inspect the match manager contract
@@ -148,7 +154,7 @@ impl DApp<()> for AnutoDApp {
                 let machine_template: MachineTemplate = MachineTemplate {
                     machine: machine_request,
                     drive_path: "anuto-log.ext2".to_string(),
-                    final_time: ctx.final_time
+                    final_time: ctx.final_time.as_u64()
                 };
                 
                 return MatchManager::react(match_manager_instance, archive, &None, &machine_template);
@@ -186,7 +192,7 @@ impl DApp<()> for AnutoDApp {
                 RevealCommit::get_pretty_instance(
                     instance.sub_instances.get(0).unwrap(),
                     archive,
-                    &(),
+                    &Default::default(),
                 )
                 .unwrap()
             )
