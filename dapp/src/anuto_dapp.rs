@@ -34,9 +34,10 @@ use super::ethabi::Token;
 use super::transaction;
 use super::transaction::TransactionRequest;
 use super::ethereum_types::{Address, H256, U256};
+use super::tournament::reveal_commit::{RevealCommit, RevealCommitCtx, RevealCommitCtxParsed};
 use super::tournament::{
     cartesi_base, MachineTemplate,
-    MatchManager, RevealCommit,
+    MatchManager,
     NewSessionRequest, NewSessionResult,
     EMULATOR_SERVICE_NAME, EMULATOR_METHOD_NEW};
 use std::fs;
@@ -102,7 +103,33 @@ impl DApp<()> for AnutoDApp {
                         ctx.current_state
                     ))),
                 )?;
-                // return control to reveal
+
+                let reveal_parsed: RevealCommitCtxParsed =
+                    serde_json::from_str(&reveal_instance.json_data)
+                        .chain_err(|| {
+                            format!(
+                                "Could not parse reveal instance json_data: {}",
+                                &reveal_instance.json_data
+                            )
+                        })?;
+                let reveal_ctx: RevealCommitCtx = reveal_parsed.into();
+
+                if reveal_ctx.current_state == "CommitRevealDone" {
+                    let request = TransactionRequest {
+                        concern: instance.concern.clone(),
+                        value: U256::from(0),
+                        function: "claimMatches".into(),
+                        data: vec![
+                            Token::Uint(instance.index),
+                        ],
+                        strategy: transaction::Strategy::Simplest,
+                    };
+
+                    return Ok(Reaction::Transaction(request));
+
+                }
+
+                // if reveal is still active, pass control
                 return RevealCommit::react(reveal_instance, archive, post_action, &());
             },
             "WaitingMatches" => {
