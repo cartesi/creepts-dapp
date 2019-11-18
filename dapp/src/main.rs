@@ -34,6 +34,7 @@ extern crate env_logger;
 extern crate utils;
 
 use anuto_dapp::AnutoDApp;
+use anuto_dapp::DAppManager;
 use dispatcher::Dispatcher;
 use utils::print_error;
 
@@ -48,5 +49,5 @@ fn main() {
         }
     };
 
-    dispatcher.run::<AnutoDApp>();
+    dispatcher.run::<DAppManager>();
 }
