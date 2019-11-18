@@ -26,6 +26,7 @@
 
 #![warn(unused_extern_crates)]
 pub mod anuto_dapp;
+pub mod dapp_manager;
 
 extern crate error;
 
@@ -42,6 +43,7 @@ extern crate tournament;
 use ethereum_types::{Address, U256};
 
 pub use anuto_dapp::AnutoDApp;
+pub use dapp_manager::DAppManager;
 
 #[derive(Debug)]
 enum Role {
