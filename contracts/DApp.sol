@@ -60,7 +60,7 @@ contract DApp is Decorated, DAppInterface {
         uint256 _matchDuration,
         uint256 _roundDuration,
         uint256 _finalTime,
-        address _machineAddress ) public onlyBy(owner)
+        address _machineAddress) public returns (uint256)
     {
 
         instance[currentIndex].rm = RevealInterface(_rmAddress);
@@ -89,9 +89,7 @@ contract DApp is Decorated, DAppInterface {
         );
 
         active[currentIndex] = true;
-        currentIndex++;
-
-        return;
+        return currentIndex++;
     }
 
     function claimMatches(uint256 _index) public onlyInstantiated(_index) {

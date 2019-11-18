@@ -7,6 +7,27 @@ import "./Instantiator.sol";
 
 contract DAppInterface is Instantiator {
 
+    function instantiate(
+        address _rmAddress,
+        address _mmAddress,
+        uint256 _commitDuration,
+        uint256 _revealDuration,
+        uint256 _scoreWordPosition,
+        uint256 _logDrivePosition,
+        uint256 _scoreDriveLogSize,
+        uint256 _logDriveLogSize,
+        bytes32 _setupHash,
+        bytes32 _tournamentName,
+
+        // MatchManager params
+        uint256 _epochDuration,
+        uint256 _matchDuration,
+        uint256 _roundDuration,
+        uint256 _finalTime,
+        address _machineAddress ) public returns (uint256);
+
+    function getCurrentState(uint256 _index, address) public view returns (bytes32);
+
     function getScore(uint256 _index, address _playerAddr) public returns (uint256);
     function getInitialHash(uint256 _index, address _playerAddr) public returns (bytes32);
     function getFinalHash(uint256 _index, address _playerAddr) public returns (bytes32);
