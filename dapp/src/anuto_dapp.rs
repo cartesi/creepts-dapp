@@ -49,7 +49,7 @@ pub struct AnutoDApp();
 // obtained from a simple derive
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
-struct AnutoDAppCtxParsed(
+pub struct AnutoDAppCtxParsed(
     String32Field,  // name of the tournament
     Bytes32Field,  // setupHash
     U256Field,  // finalTime
@@ -57,11 +57,11 @@ struct AnutoDAppCtxParsed(
 );
 
 #[derive(Serialize, Debug)]
-struct AnutoDAppCtx {
-    tournament_name: String,
-    setup_hash: H256,
-    final_time: U256,
-    current_state: String
+pub struct AnutoDAppCtx {
+    pub tournament_name: String,
+    pub setup_hash: H256,
+    pub final_time: U256,
+    pub current_state: String
 }
 
 impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
