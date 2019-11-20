@@ -4,6 +4,12 @@ var DApp = artifacts.require("DApp");
 
 var DAppManager = artifacts.require("DAppManager");
 
+const MatchManagerInstantiator = artifacts.require("@cartesi/tournament/MatchManagerInstantiator");
+
+const RevealInstantiator = artifacts.require("@cartesi/tournament/RevealInstantiator");
+
+const Step = artifacts.require("@cartesi/machine-solidity-step/Step");
+
 module.exports = function(deployer, network, accounts) {
 
     deployer.then(async () => {
@@ -11,8 +17,8 @@ module.exports = function(deployer, network, accounts) {
         await deployer.deploy(
             DAppManager,
             DApp.address, //dappAddress
-            DApp.address, //rmAddress,
-            DApp.address, //mmAddress,
+            RevealInstantiator.address, //rmAddress,
+            MatchManagerInstantiator.address, //mmAddress,
             200, //commitDuration,
             200, //revealDuration,
             (1<<63)+(3<<61), //scoreWordPosition,
@@ -25,7 +31,7 @@ module.exports = function(deployer, network, accounts) {
             50, //matchDuration,
             25, //roundDuration,
             100000, //finalTime,
-            DApp.address //machineAddress
+            Step.address //machineAddress
         );
     });
 
