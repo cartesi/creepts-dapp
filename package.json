@@ -3,6 +3,9 @@
     "test": "mocha"
   },
   "dependencies": {
+    "@cartesi/arbitration": "0.1.0-alpha.0",
+    "@cartesi/machine-solidity-step": "0.1.0-alpha.0",
+    "@cartesi/tournament": "0.1.0-alpha.0",
     "bignumber.js": "^6.0.0",
     "chai": "^4.2.0",
     "dotenv": "^8.0.0",
