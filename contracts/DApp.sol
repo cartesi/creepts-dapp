@@ -2,10 +2,10 @@
 /// @author Stephen Chen
 pragma solidity ^0.5.0;
 
-import "./DAppInterface.sol";
-import "./RevealInterface.sol";
-import "./MatchManagerInterface.sol";
 import "@cartesi/util/contracts/Decorated.sol";
+import "@cartesi/tournament/contracts/RevealInterface.sol";
+import "@cartesi/tournament/contracts/MatchManagerInterface.sol";
+import "./DAppInterface.sol";
 
 
 contract DApp is Decorated, DAppInterface {
@@ -118,7 +118,7 @@ contract DApp is Decorated, DAppInterface {
     {
         require(instance[_index].currentState == state.WaitingMatches, "The state is not WaitingMatches");
 
-        bytes32 matchManagerState = instance[currentIndex].mm.getCurrentState(instance[_index].matchManagerIndex, msg.sender);
+        bytes32 matchManagerState = instance[currentIndex].mm.getCurrentState(instance[_index].matchManagerIndex);
 
         if (matchManagerState == "MatchesOver") {
             instance[currentIndex].currentState = state.DAppFinished;
