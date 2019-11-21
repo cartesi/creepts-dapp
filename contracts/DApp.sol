@@ -5,7 +5,7 @@ pragma solidity ^0.5.0;
 import "./DAppInterface.sol";
 import "./RevealInterface.sol";
 import "./MatchManagerInterface.sol";
-import "./Decorated.sol";
+import "@cartesi/util/contracts/Decorated.sol";
 
 
 contract DApp is Decorated, DAppInterface {
