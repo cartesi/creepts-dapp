@@ -1,3 +1,13 @@
 dapp/target
 node_modules/
 build/
+contracts.json
+coverage*
+test/*/
+.venv
+.vscode
+.node*
+*.bin
+*.abi
+/out
+build

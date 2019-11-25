@@ -1,5 +1,5 @@
 [package]
-description = "Cartesi Anuto Game"
+description = "Cartesi Creepts Game"
 homepage = "https://cartesi.io"
 name = "anuto_dapp"
 version = "0.1.0"
@@ -24,5 +24,3 @@ dispatcher = { path = "../tournament-dlib/arbitration-dlib/dispatcher/dispatcher
 grpc = { git = "https://github.com/cartesi/grpc-rust", branch = "make_marshall_public" }
 protobuf = "=2.7.0"
 bytes = "0.4.12"
-
-

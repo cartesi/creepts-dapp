@@ -1,0 +1,35 @@
+concerns:
+  - abi: "/opt/cartesi/share/blockchain/contracts/PartitionInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/MMInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/VGInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/ComputeInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/MatchInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/MatchManagerInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/RevealInstantiator.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+  - abi: "/opt/cartesi/share/blockchain/contracts/DApp.json"
+    user_address: "${ACCOUNT_ADDRESS}"
+main_concern:
+  abi: "/opt/cartesi/share/blockchain/contracts/DAppManager.json"
+  user_address: "${ACCOUNT_ADDRESS}"
+confirmations: 0
+max_delay: 500
+query_port: 3001
+services:
+  - name: emulator
+    transport:
+      address: machine-manager
+      port: 50051
+  - name: logger
+    transport:
+      address: logger
+      port: 50051
+testing: true
+url: http://ganache:8545
+warn_delay: 30
