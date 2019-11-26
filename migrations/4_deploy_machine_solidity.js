@@ -1,4 +1,6 @@
-//Libraries
+
+const BitsManipulationLibrary = artifacts.require("@cartesi/util/BitsManipulationLibrary");
+
 const RiscVDecoder = artifacts.require("@cartesi/machine-solidity-step/RiscVDecoder");
 const ShadowAddresses = artifacts.require("@cartesi/machine-solidity-step/ShadowAddresses");
 const RiscVConstants = artifacts.require("@cartesi/machine-solidity-step/RiscVConstants");
@@ -8,7 +10,6 @@ const RealTimeClock = artifacts.require("@cartesi/machine-solidity-step/RealTime
 const ArithmeticInstructions = artifacts.require("@cartesi/machine-solidity-step/ArithmeticInstructions");
 const ArithmeticImmediateInstructions = artifacts.require("@cartesi/machine-solidity-step/ArithmeticImmediateInstructions");
 const AtomicInstructions = artifacts.require("@cartesi/machine-solidity-step/AtomicInstructions");
-const BitsManipulationLibrary = artifacts.require("@cartesi/util/BitsManipulationLibrary");
 const S_Instructions = artifacts.require("@cartesi/machine-solidity-step/S_Instructions");
 const EnvTrapInstructions = artifacts.require("@cartesi/machine-solidity-step/EnvTrapIntInstructions");
 const StandAloneInstructions = artifacts.require("@cartesi/machine-solidity-step/StandAloneInstructions");
@@ -23,7 +24,6 @@ const HTIF = artifacts.require("@cartesi/machine-solidity-step/HTIF");
 const CLINT = artifacts.require("@cartesi/machine-solidity-step/CLINT");
 const Interrupts = artifacts.require("@cartesi/machine-solidity-step/Interrupts");
 
-//Contracts
 const MemoryInteractor = artifacts.require("@cartesi/machine-solidity-step/MemoryInteractor");
 const VirtualMemory = artifacts.require("@cartesi/machine-solidity-step/VirtualMemory");
 const Step = artifacts.require("@cartesi/machine-solidity-step/Step");
@@ -37,7 +37,6 @@ module.exports = function(deployer) {
   deployer.then(async () => {
     await deployer.deploy(ShadowAddresses);
     await deployer.deploy(RiscVConstants);
-    await deployer.deploy(BitsManipulationLibrary);
 
     await deployer.link(BitsManipulationLibrary, RiscVDecoder);
     await deployer.deploy(RiscVDecoder);

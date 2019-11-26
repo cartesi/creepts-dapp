@@ -1,8 +1,9 @@
-const DApp = artifacts.require("DApp");
-const DAppManager = artifacts.require("DAppManager");
 const MatchManagerInstantiator = artifacts.require("@cartesi/tournament/MatchManagerInstantiator");
 const RevealInstantiator = artifacts.require("@cartesi/tournament/RevealInstantiator");
 const Step = artifacts.require("@cartesi/machine-solidity-step/Step");
+
+const DApp = artifacts.require("DApp");
+const DAppManager = artifacts.require("DAppManager");
 
 module.exports = function(deployer, network, accounts) {
 
