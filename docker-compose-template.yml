@@ -52,6 +52,8 @@ services:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
+    environment:
+      WEB3_PROVIDER_URI: http://ganache:8545
     networks:
       ganache: {}
       node_{{ i }}:
