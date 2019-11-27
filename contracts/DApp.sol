@@ -178,15 +178,15 @@ contract DApp is Decorated, DAppInterface {
         if (instance[_index].currentState == state.WaitingCommitAndReveal) {
             a = new address[](1);
             i = new uint256[](1);
-            a[0] = address(instance[currentIndex].rm);
+            a[0] = address(instance[_index].rm);
             i[0] = instance[_index].revealIndex;
         } else if (instance[_index].currentState == state.WaitingMatches ||
             instance[_index].currentState == state.DAppFinished) {
             a = new address[](2);
             i = new uint256[](2);
-            a[0] = address(instance[currentIndex].rm);
+            a[0] = address(instance[_index].rm);
             i[0] = instance[_index].revealIndex;
-            a[1] = address(instance[currentIndex].mm);
+            a[1] = address(instance[_index].mm);
             i[1] = instance[_index].matchManagerIndex;
         } else {
             a = new address[](0);
