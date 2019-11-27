@@ -40,7 +40,6 @@ use super::tournament::{
     MatchManager,
     NewSessionRequest, NewSessionResult,
     EMULATOR_SERVICE_NAME, EMULATOR_METHOD_NEW};
-use std::fs;
 
 pub struct AnutoDApp();
 
@@ -233,12 +232,15 @@ macro_rules! drive_label_0 {
     () => ( "rootfs" )
 }
 macro_rules! drive_label_1 {
-    () => ( "input" )
+    () => ( "anutofs" )
 }
 macro_rules! drive_label_2 {
-    () => ( "job" )
+    () => ( "log" )
 }
 macro_rules! drive_label_3 {
+    () => ( "level" )
+}
+macro_rules! drive_label_4 {
     () => ( "output" )
 }
 
@@ -247,14 +249,13 @@ macro_rules! mtdparts_string {
             "mtdparts=flash.0:-(", drive_label_0!(), ")",
             "flash.1:-(", drive_label_1!(), ")",
             "flash.2:-(", drive_label_2!(), ")",
-            "flash.3:-(", drive_label_3!(), ")");
+            "flash.3:-(", drive_label_3!(), ")",
+            "flash.4:-(", drive_label_4!(), ")");
     )
 }
 
-const ONEMB: u64 = 1024*1024;
 const EMULATOR_BASE_PATH: &'static str = "/root/host/";
 const TEST_BASE_PATH: &'static str = "/root/host/test-files/";
-const OUTPUT_DRIVE_NAME: &'static str = "out_pristine.ext2";
 
 struct Ram {
     length: u64,
@@ -269,42 +270,59 @@ struct Rom {
 struct Drive {
     backing: &'static str,
     shared: bool,
-    label: &'static str
+    label: &'static str,
+    start: u64,
+    length: u64
 }
 
 const TEST_RAM: Ram = Ram {
-    length: 64 << 20,
+    length: 512 << 20,
     backing: "kernel.bin"
 };
 
-const TEST_DRIVES: [Drive; 4] = [
+const TEST_DRIVES: [Drive; 5] = [
     Drive {
         backing: concat!(drive_label_0!(), ".ext2"),
         shared: false,
-        label: drive_label_0!()
+        label: drive_label_0!(),
+        start: 0x8000000000000000,
+        length: 0x3c00000
     }, 
     Drive {
         backing: concat!(drive_label_1!(), ".ext2"),
         shared: false,
-        label: drive_label_1!()
-    }, 
+        label: drive_label_1!(),
+        start: 0xa000000000000000,
+        length: 0x400000
+    },
     Drive {
-        backing: concat!(drive_label_2!(), ".ext2"),
+        backing: concat!(drive_label_2!(), ".json.br.tar"),
         shared: false,
-        label: drive_label_2!()
-    }, 
+        label: drive_label_2!(),
+        start: 0xc000000000000000,
+        length: 0x3000
+    },
     Drive {
-        backing: OUTPUT_DRIVE_NAME,
+        backing: concat!(drive_label_3!(), ".ext2"),
         shared: false,
-        label: drive_label_3!()
+        label: drive_label_3!(),
+        start: 0xd000000000000000,
+        length: 0x1000
+    },
+    Drive {
+        backing: concat!(drive_label_4!(), ".ext2"),
+        shared: false,
+        label: drive_label_4!(),
+        start: 0xe000000000000000,
+        length: 0x1000
     }
 ];
 
 const TEST_ROM: Rom = Rom {
     bootargs: concat!("console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
                     mtdparts_string!(),
-                    " -- /bin/sh -c 'echo test && touch /mnt/output/test && cat /mnt/job/demo.sh && /mnt/job/demo.sh && echo test2' && cat /mnt/output/out"),
-    backing: "rom-linux.bin"
+                    " quiet -- /mnt/anuto/bin/verify"),
+    backing: "rom.bin"
 };
 
 fn build_machine() -> Result<cartesi_base::MachineRequest> {
@@ -312,28 +330,18 @@ fn build_machine() -> Result<cartesi_base::MachineRequest> {
     ram_msg.set_length(TEST_RAM.length);
     ram_msg.set_backing(EMULATOR_BASE_PATH.to_string() + &TEST_RAM.backing.to_string());
 
-    let mut drive_start: u64 = 1 << 63;
     let mut drives_msg: Vec<cartesi_base::Drive> = Vec::new();
 
     for drive in TEST_DRIVES.iter() {
         let drive_path = EMULATOR_BASE_PATH.to_string() + &drive.backing.to_string();
-        // TODO: error handling for files metadata
-        let metadata = fs::metadata(TEST_BASE_PATH.to_string() + &drive.backing.to_string())?;
-        let drive_size = metadata.len();
         let mut drive_msg = cartesi_base::Drive::new();
 
-        drive_msg.set_start(drive_start);
-        drive_msg.set_length(drive_size);
+        drive_msg.set_start(drive.start);
+        drive_msg.set_length(drive.length);
         drive_msg.set_backing(drive_path);
         drive_msg.set_shared(drive.shared);
 
         drives_msg.push(drive_msg);
-
-        if drive_size < ONEMB {
-            drive_start += ONEMB;
-        } else {
-            drive_start +=  drive_size.next_power_of_two();
-        }
     }
 
     let mut rom_msg = cartesi_base::ROM::new();
