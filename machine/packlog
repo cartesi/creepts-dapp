@@ -6,13 +6,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 tmpdir=$(mktemp -d -t anuto-XXXXXXXXXX)
-(cp $1 /$tmpdir/log.json; cd $tmpdir; brotli log.json; tar -cf log.json.br.tar log.json.br)
-cp $tmpdir/log.json.br.tar $2
-
-if [ $(uname) = "Darwin" ]; then
-    gtruncate -s %4096 $2
-else
-    truncate -s %4096 $2
-fi
+(cp $1 /$tmpdir/log.json; cd $tmpdir; brotli log.json; echo log.json.br | cpio -o -F log.json.cpio)
+cp $tmpdir/log.json.cpio $2
 
 \rm -rf  $tmpdir
