@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd $(dirname $0)
-dd status=none if=$(./flashdevicebylabel log) | cpio -i --to-stdout | brotli -d -c

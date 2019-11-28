@@ -1,3 +1,0 @@
-#!/usr/bin/lua
-
-print((string.unpack(">I8", io.read(8))))
