@@ -31,6 +31,13 @@ services:
       {% for i in range(players) %}- key_data_{{ i }}:/key-{{ i }}
       {% endfor %}
 
+  emulator_setup:
+    build: emulator_setup
+    volumes:
+      - emulator_data:/root/host
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
 {% for i in range(players) %}
   dispatcher_{{ i }}:
     # build: .
@@ -64,6 +71,7 @@ services:
     image: cartesi/machine-manager
     volumes:
       - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - emulator_data:/opt/cartesi/srv/emulator-files
     networks:
       ganache: {}
       node_{{ i }}:
@@ -93,6 +101,7 @@ services:
 volumes:
   ganache_data:
   truffle_data:
+  emulator_data:
   {% for i in range(players) %}dapp_data_{{ i }}:
   key_data_{{ i }}:
   {% endfor %}
