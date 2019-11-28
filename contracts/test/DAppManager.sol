@@ -31,6 +31,7 @@ contract DAppManager is Decorated, Instantiator {
         uint256 logDriveLogSize;
         bytes32 setupHash;
         bytes32 tournamentName;
+        uint256 level;
 
         // matchmanager
         uint256 epochDuration;
@@ -56,6 +57,7 @@ contract DAppManager is Decorated, Instantiator {
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
         bytes32 _tournamentName,
+        uint256 _level,
 
         uint256 _epochDuration,
         uint256 _matchDuration,
@@ -77,6 +79,7 @@ contract DAppManager is Decorated, Instantiator {
         instance[currentIndex].logDriveLogSize = _logDriveLogSize;
         instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].tournamentName = _tournamentName;
+        instance[currentIndex].level = _level;
         instance[currentIndex].epochDuration = _epochDuration;
         instance[currentIndex].matchDuration = _matchDuration;
         instance[currentIndex].roundDuration = _roundDuration;
@@ -108,6 +111,7 @@ contract DAppManager is Decorated, Instantiator {
             i.logDriveLogSize,
             i.setupHash,
             "mock tournament",
+            i.level,
             i.epochDuration,
             i.matchDuration,
             i.roundDuration,

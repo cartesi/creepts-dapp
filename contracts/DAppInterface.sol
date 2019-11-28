@@ -18,6 +18,7 @@ contract DAppInterface is Instantiator {
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
         bytes32 _tournamentName,
+        uint256 _level,
 
         // MatchManager params
         uint256 _epochDuration,

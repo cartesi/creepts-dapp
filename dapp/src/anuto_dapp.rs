@@ -60,6 +60,7 @@ pub struct AnutoDAppCtx {
     pub tournament_name: String,
     pub setup_hash: H256,
     pub final_time: U256,
+    pub level: U256,
     pub current_state: String
 }
 
@@ -69,7 +70,8 @@ impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
             tournament_name: parsed.0.value,
             setup_hash: parsed.1.value,
             final_time: parsed.2.value,
-            current_state: parsed.3.value
+            level: parsed.3.value,
+            current_state: parsed.4.value
         }
     }
 }

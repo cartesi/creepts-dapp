@@ -24,6 +24,7 @@ contract DApp is Decorated, DAppInterface {
         uint256 matchManagerIndex;
         bytes32 setupHash; // initial hash of cartesi machine of the tournament
         bytes32 tournamentName; // name of the tournament
+        uint256 level; // name of the tournament
 
         // MatchManager params
         uint256 epochDuration;
@@ -54,6 +55,7 @@ contract DApp is Decorated, DAppInterface {
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
         bytes32 _tournamentName,
+        uint256 _level,
 
         // MatchManager params
         uint256 _epochDuration,
@@ -68,6 +70,7 @@ contract DApp is Decorated, DAppInterface {
 
         instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].tournamentName = _tournamentName;
+        instance[currentIndex].level = _level;
 
         instance[currentIndex].epochDuration = _epochDuration;
         instance[currentIndex].matchDuration = _matchDuration;
@@ -139,6 +142,7 @@ contract DApp is Decorated, DAppInterface {
         onlyInstantiated(_index)
         returns (
             bytes32,
+            uint256,
             bytes32,
             uint256,
             bytes32
@@ -146,6 +150,7 @@ contract DApp is Decorated, DAppInterface {
     {
         return (
             instance[_index].tournamentName,
+            instance[_index].level,
             instance[_index].setupHash,
             instance[_index].finalTime,
             getCurrentState(_index, _user));
