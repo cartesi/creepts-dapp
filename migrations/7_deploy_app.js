@@ -6,7 +6,7 @@ const DApp = artifacts.require("DApp");
 const DAppManager = artifacts.require("DAppManager");
 
 module.exports = function(deployer, network, accounts) {
-
+    // !!! setupHash should be modified manually in the DAppManager contract !!!
     deployer.then(async () => {
         await deployer.deploy(DApp);
         await deployer.deploy(
@@ -21,7 +21,7 @@ module.exports = function(deployer, network, accounts) {
             3, //scoreDriveLogSize,
             20, //logDriveLogSize,
             "0x00", //setupHash,
-            "0x00", //tournamentName,
+            0, //level,
             100, //epochDuration,
             50, //matchDuration,
             25, //roundDuration,

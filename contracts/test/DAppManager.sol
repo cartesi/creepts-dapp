@@ -30,7 +30,6 @@ contract DAppManager is Decorated, Instantiator {
         uint256 scoreDriveLogSize;
         uint256 logDriveLogSize;
         bytes32 setupHash;
-        bytes32 tournamentName;
         uint256 level;
 
         // matchmanager
@@ -56,7 +55,6 @@ contract DAppManager is Decorated, Instantiator {
         uint256 _scoreDriveLogSize,
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
-        bytes32 _tournamentName,
         uint256 _level,
 
         uint256 _epochDuration,
@@ -78,7 +76,6 @@ contract DAppManager is Decorated, Instantiator {
         instance[currentIndex].scoreDriveLogSize = _scoreDriveLogSize;
         instance[currentIndex].logDriveLogSize = _logDriveLogSize;
         instance[currentIndex].setupHash = _setupHash;
-        instance[currentIndex].tournamentName = _tournamentName;
         instance[currentIndex].level = _level;
         instance[currentIndex].epochDuration = _epochDuration;
         instance[currentIndex].matchDuration = _matchDuration;
@@ -100,6 +97,7 @@ contract DAppManager is Decorated, Instantiator {
 
         instance[_index].currentState = state.DAppRunning;
 
+        // !!! setupHash should be modified manually in the DAppManager contract !!!
         instance[_index].dappIndex = dapp.instantiate(
             i.rmAddress,
             i.mmAddress,
@@ -109,8 +107,7 @@ contract DAppManager is Decorated, Instantiator {
             i.logDrivePosition,
             i.scoreDriveLogSize,
             i.logDriveLogSize,
-            i.setupHash,
-            "mock tournament",
+            "0x00",//i.setupHash,
             i.level,
             i.epochDuration,
             i.matchDuration,
@@ -183,5 +180,4 @@ contract DAppManager is Decorated, Instantiator {
         i = new uint256[](0);
         return (a, i);
     }
-
 }
