@@ -23,7 +23,6 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-
 #![warn(unused_extern_crates)]
 pub mod anuto_dapp;
 pub mod dapp_manager;
@@ -37,30 +36,8 @@ extern crate log;
 extern crate dispatcher;
 extern crate ethabi;
 extern crate ethereum_types;
-extern crate transaction;
 extern crate tournament;
-
-use ethereum_types::{Address, U256};
+extern crate transaction;
 
 pub use anuto_dapp::AnutoDApp;
 pub use dapp_manager::DAppManager;
-
-#[derive(Debug)]
-enum Role {
-    Claimer,
-    Challenger,
-}
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// we need to have a proper way to construct machine ids.
-// but this will only make real sense when we have the scripting
-// language or some other means to construct a machine inside the
-// blockchain.
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-fn build_machine_id(_index: U256, _address: &Address) -> String {
-    //return format!("{:x}:{}", address, index);
-    //return "0000000000000000000000000000000000000000000000008888888888888888"
-    //    .to_string();
-    return "test_new_session_id".to_string();
-}

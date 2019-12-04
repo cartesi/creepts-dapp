@@ -1,12 +1,12 @@
-use super::dispatcher::{AddressField, Bytes32Field, String32Field, U256Field};
+use super::anuto_dapp::{AnutoDApp, AnutoDAppCtx, AnutoDAppCtxParsed};
 use super::dispatcher::{Archive, DApp, Reaction};
+use super::dispatcher::{String32Field, U256Field};
 use super::error::Result;
 use super::error::*;
 use super::ethabi::Token;
-use super::ethereum_types::{Address, H256, U256};
+use super::ethereum_types::U256;
 use super::transaction;
 use super::transaction::TransactionRequest;
-use super::anuto_dapp::{AnutoDApp, AnutoDAppCtx, AnutoDAppCtxParsed};
 
 pub struct DAppManager();
 
@@ -16,7 +16,7 @@ pub struct DAppManager();
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
 struct DAppManagerCtxParsed(
-    U256Field,  // dappIndex
+    U256Field,     // dappIndex
     String32Field, // currentState
 );
 
@@ -77,21 +77,20 @@ impl DApp<()> for DAppManager {
 
             "DAppRunning" => {
                 // we inspect the anuto contract
-                let anuto_instance = instance.sub_instances.get(0).ok_or(
-                    Error::from(ErrorKind::InvalidContractState(format!(
+                let anuto_instance = instance.sub_instances.get(0).ok_or(Error::from(
+                    ErrorKind::InvalidContractState(format!(
                         "There is no anuto instance {}",
                         ctx.current_state
-                    ))),
-                )?;
+                    )),
+                ))?;
 
                 let anuto_parsed: AnutoDAppCtxParsed =
-                    serde_json::from_str(&anuto_instance.json_data)
-                        .chain_err(|| {
-                            format!(
-                                "Could not parse anuto instance json_data: {}",
-                                &anuto_instance.json_data
-                            )
-                        })?;
+                    serde_json::from_str(&anuto_instance.json_data).chain_err(|| {
+                        format!(
+                            "Could not parse anuto instance json_data: {}",
+                            &anuto_instance.json_data
+                        )
+                    })?;
                 let anuto_ctx: AnutoDAppCtx = anuto_parsed.into();
 
                 match anuto_ctx.current_state.as_ref() {
@@ -113,7 +112,9 @@ impl DApp<()> for DAppManager {
                     }
                 }
             }
-            _ => {return Ok(Reaction::Idle);}
+            _ => {
+                return Ok(Reaction::Idle);
+            }
         }
     }
 
@@ -122,7 +123,6 @@ impl DApp<()> for DAppManager {
         archive: &Archive,
         _: &(),
     ) -> Result<state::Instance> {
-
         // get context (state) of the match instance
         let parsed: DAppManagerCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
@@ -136,19 +136,12 @@ impl DApp<()> for DAppManager {
 
         // get context (state) of the sub instances
 
-        let mut pretty_sub_instances : Vec<Box<state::Instance>> = vec![];
+        let mut pretty_sub_instances: Vec<Box<state::Instance>> = vec![];
 
         for sub in &instance.sub_instances {
-            pretty_sub_instances.push(
-                Box::new(
-                    AnutoDApp::get_pretty_instance(
-                        sub,
-                        archive,
-                        &(),
-                    )
-                    .unwrap()
-                )
-            )
+            pretty_sub_instances.push(Box::new(
+                AnutoDApp::get_pretty_instance(sub, archive, &()).unwrap(),
+            ))
         }
 
         let pretty_instance = state::Instance {
@@ -159,6 +152,6 @@ impl DApp<()> for DAppManager {
             sub_instances: pretty_sub_instances,
         };
 
-        return Ok(pretty_instance)
+        return Ok(pretty_instance);
     }
 }

@@ -25,21 +25,15 @@
 
 extern crate protobuf;
 
-use super::build_machine_id;
-use super::dispatcher::{AddressField, Bytes32Field, String32Field, U256Field};
 use super::dispatcher::{Archive, DApp, Reaction};
-use super::error::Result;
+use super::dispatcher::{Bytes32Field, String32Field, U256Field};
 use super::error::*;
 use super::ethabi::Token;
+use super::ethereum_types::{H256, U256};
+use super::tournament::reveal_commit::{RevealCommit, RevealCommitCtx, RevealCommitCtxParsed};
+use super::tournament::{cartesi_base, MachineTemplate, MatchManager};
 use super::transaction;
 use super::transaction::TransactionRequest;
-use super::ethereum_types::{Address, H256, U256};
-use super::tournament::reveal_commit::{RevealCommit, RevealCommitCtx, RevealCommitCtxParsed};
-use super::tournament::{
-    cartesi_base, MachineTemplate,
-    MatchManager,
-    NewSessionRequest, NewSessionResult,
-    EMULATOR_SERVICE_NAME, EMULATOR_METHOD_NEW};
 
 pub struct AnutoDApp();
 
@@ -49,10 +43,11 @@ pub struct AnutoDApp();
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
 pub struct AnutoDAppCtxParsed(
-    String32Field,  // name of the tournament
+    String32Field, // name of the tournament
     Bytes32Field,  // setupHash
-    U256Field,  // finalTime
-    String32Field // currentState
+    U256Field,     // finalTime
+    U256Field,     // level
+    String32Field, // currentState
 );
 
 #[derive(Serialize, Debug)]
@@ -61,7 +56,7 @@ pub struct AnutoDAppCtx {
     pub setup_hash: H256,
     pub final_time: U256,
     pub level: U256,
-    pub current_state: String
+    pub current_state: String,
 }
 
 impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
@@ -71,7 +66,7 @@ impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
             setup_hash: parsed.1.value,
             final_time: parsed.2.value,
             level: parsed.3.value,
-            current_state: parsed.4.value
+            current_state: parsed.4.value,
         }
     }
 }
@@ -98,24 +93,23 @@ impl DApp<()> for AnutoDApp {
         match ctx.current_state.as_ref() {
             "DAppFinished" => {
                 return Ok(Reaction::Idle);
-            },
+            }
             "WaitingCommitAndReveal" => {
                 // we inspect the reveal contract
-                let reveal_instance = instance.sub_instances.get(0).ok_or(
-                    Error::from(ErrorKind::InvalidContractState(format!(
+                let reveal_instance = instance.sub_instances.get(0).ok_or(Error::from(
+                    ErrorKind::InvalidContractState(format!(
                         "There is no reveal instance {}",
                         ctx.current_state
-                    ))),
-                )?;
+                    )),
+                ))?;
 
                 let reveal_parsed: RevealCommitCtxParsed =
-                    serde_json::from_str(&reveal_instance.json_data)
-                        .chain_err(|| {
-                            format!(
-                                "Could not parse reveal instance json_data: {}",
-                                &reveal_instance.json_data
-                            )
-                        })?;
+                    serde_json::from_str(&reveal_instance.json_data).chain_err(|| {
+                        format!(
+                            "Could not parse reveal instance json_data: {}",
+                            &reveal_instance.json_data
+                        )
+                    })?;
                 let reveal_ctx: RevealCommitCtx = reveal_parsed.into();
 
                 if reveal_ctx.current_state == "CommitRevealDone" {
@@ -123,42 +117,61 @@ impl DApp<()> for AnutoDApp {
                         concern: instance.concern.clone(),
                         value: U256::from(0),
                         function: "claimMatches".into(),
-                        data: vec![
-                            Token::Uint(instance.index),
-                        ],
+                        data: vec![Token::Uint(instance.index)],
                         strategy: transaction::Strategy::Simplest,
                     };
 
                     return Ok(Reaction::Transaction(request));
-
                 }
-                let machine_request = build_machine().chain_err(|| format!("could not build machine message"))?;
+                let machine_request = build_machine(false)
+                    .chain_err(|| format!("could not build machine message"))?;
+                let opponent_machine_request =
+                    build_machine(true).chain_err(|| format!("could not build machine message"))?;
                 let machine_template: MachineTemplate = MachineTemplate {
-                    machine: machine_request,
-                    drive_path: "anuto-log.ext2".to_string(),
-                    final_time: ctx.final_time.as_u64()
+                    machine: machine_request.clone(),
+                    opponent_machine: opponent_machine_request,
+                    tournament_index: instance.index,
+                    page_log2_size: 7,
+                    tree_log2_size: 17,
+                    final_time: ctx.final_time.as_u64(),
                 };
 
                 // if reveal is still active, pass control
-                return RevealCommit::react(reveal_instance, archive, post_action, &machine_template);
-            },
+                return RevealCommit::react(
+                    reveal_instance,
+                    archive,
+                    post_action,
+                    &machine_template,
+                );
+            }
             "WaitingMatches" => {
                 // we inspect the match manager contract
-                let match_manager_instance = instance.sub_instances.get(1).ok_or(
-                    Error::from(ErrorKind::InvalidContractState(format!(
+                let match_manager_instance = instance.sub_instances.get(1).ok_or(Error::from(
+                    ErrorKind::InvalidContractState(format!(
                         "There is no match manager instance {}",
                         ctx.current_state
-                    ))),
-                )?;
+                    )),
+                ))?;
 
-                let machine_request = build_machine().chain_err(|| format!("could not build machine message"))?;
+                let machine_request = build_machine(false)
+                    .chain_err(|| format!("could not build machine message"))?;
+                let opponent_machine_request =
+                    build_machine(true).chain_err(|| format!("could not build machine message"))?;
                 let machine_template: MachineTemplate = MachineTemplate {
-                    machine: machine_request,
-                    drive_path: "anuto-log.ext2".to_string(),
-                    final_time: ctx.final_time.as_u64()
+                    machine: machine_request.clone(),
+                    opponent_machine: opponent_machine_request,
+                    tournament_index: instance.index,
+                    page_log2_size: 7,
+                    tree_log2_size: 17,
+                    final_time: ctx.final_time.as_u64(),
                 };
-                
-                return MatchManager::react(match_manager_instance, archive, &None, &machine_template);
+
+                return MatchManager::react(
+                    match_manager_instance,
+                    archive,
+                    &None,
+                    &machine_template,
+                );
                 // return control to match manager
             }
             _ => {
@@ -166,13 +179,12 @@ impl DApp<()> for AnutoDApp {
             }
         };
     }
-    
+
     fn get_pretty_instance(
         instance: &state::Instance,
         archive: &Archive,
         _: &(),
     ) -> Result<state::Instance> {
-        
         // get context (state) of the arbitration test instance
         let parsed: AnutoDAppCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
@@ -186,30 +198,26 @@ impl DApp<()> for AnutoDApp {
 
         // get context (state) of the sub instances
 
-        let mut pretty_sub_instances : Vec<Box<state::Instance>> = vec![];
+        let mut pretty_sub_instances: Vec<Box<state::Instance>> = vec![];
 
-        pretty_sub_instances.push(
-            Box::new(
-                RevealCommit::get_pretty_instance(
-                    instance.sub_instances.get(0).unwrap(),
+        pretty_sub_instances.push(Box::new(
+            RevealCommit::get_pretty_instance(
+                instance.sub_instances.get(0).unwrap(),
+                archive,
+                &Default::default(),
+            )
+            .unwrap(),
+        ));
+
+        if instance.sub_instances.len() > 1 {
+            pretty_sub_instances.push(Box::new(
+                MatchManager::get_pretty_instance(
+                    instance.sub_instances.get(1).unwrap(),
                     archive,
                     &Default::default(),
                 )
-                .unwrap()
-            )
-        );
-
-        if instance.sub_instances.len() > 1 {
-            pretty_sub_instances.push(
-                Box::new(
-                    MatchManager::get_pretty_instance(
-                        instance.sub_instances.get(1).unwrap(),
-                        archive,
-                        &Default::default(),
-                    )
-                    .unwrap()
-                )
-            );
+                .unwrap(),
+            ));
         }
 
         let pretty_instance = state::Instance {
@@ -220,53 +228,83 @@ impl DApp<()> for AnutoDApp {
             sub_instances: pretty_sub_instances,
         };
 
-        return Ok(pretty_instance)
+        return Ok(pretty_instance);
     }
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// below are the codes to generate hard-coded new machine request 
+// below are the codes to generate hard-coded new machine request
 // may need to revise in the future
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // TODO: revise all the values below for the anuto game
 macro_rules! drive_label_0 {
-    () => ( "rootfs" )
+    () => {
+        "rootfs"
+    };
 }
 macro_rules! drive_label_1 {
-    () => ( "anutofs" )
+    () => {
+        "anutofs"
+    };
 }
 macro_rules! drive_label_2 {
-    () => ( "log" )
+    () => {
+        "log"
+    };
 }
 macro_rules! drive_label_3 {
-    () => ( "level" )
+    () => {
+        "level"
+    };
 }
 macro_rules! drive_label_4 {
-    () => ( "output" )
+    () => {
+        "output"
+    };
 }
 
 macro_rules! mtdparts_string {
-    () => ( concat!(
-            "mtdparts=flash.0:-(", drive_label_0!(), ")",
-            "flash.1:-(", drive_label_1!(), ")",
-            "flash.2:-(", drive_label_2!(), ")",
-            "flash.3:-(", drive_label_3!(), ")",
-            "flash.4:-(", drive_label_4!(), ")");
-    )
+    () => {
+        concat!(
+            "mtdparts=flash.0:-(",
+            drive_label_0!(),
+            ")",
+            "flash.1:-(",
+            drive_label_1!(),
+            ")",
+            "flash.2:-(",
+            drive_label_2!(),
+            ")",
+            "flash.3:-(",
+            drive_label_3!(),
+            ")",
+            "flash.4:-(",
+            drive_label_4!(),
+            ")"
+        );
+    };
 }
 
-const EMULATOR_BASE_PATH: &'static str = "/root/host/";
-const TEST_BASE_PATH: &'static str = "/root/host/test-files/";
+macro_rules! EMULATOR_FILES_PATH {
+    () => {
+        "/opt/cartesi/srv/emulator-files/"
+    };
+}
+macro_rules! DAPP_DATA_PATH {
+    () => {
+        "/opt/cartesi/srv/creepts/"
+    };
+}
 
 struct Ram {
     length: u64,
-    backing: &'static str
+    backing: &'static str,
 }
 
 struct Rom {
     bootargs: &'static str,
-    backing: &'static str
+    backing: &'static str,
 }
 
 struct Drive {
@@ -274,73 +312,118 @@ struct Drive {
     shared: bool,
     label: &'static str,
     start: u64,
-    length: u64
+    length: u64,
 }
 
 const TEST_RAM: Ram = Ram {
     length: 512 << 20,
-    backing: "kernel.bin"
+    backing: "kernel.bin",
 };
 
 const TEST_DRIVES: [Drive; 5] = [
     Drive {
-        backing: concat!(drive_label_0!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), ".ext2"),
         shared: false,
         label: drive_label_0!(),
         start: 0x8000000000000000,
-        length: 0x3c00000
-    }, 
+        length: 0x3c00000,
+    },
     Drive {
-        backing: concat!(drive_label_1!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), ".ext2"),
         shared: false,
         label: drive_label_1!(),
         start: 0xa000000000000000,
-        length: 0x400000
+        length: 0x400000,
     },
     Drive {
-        backing: concat!(drive_label_2!(), ".json.br.tar"),
+        backing: concat!(DAPP_DATA_PATH!(), "0.br.tar.full"),
         shared: false,
         label: drive_label_2!(),
         start: 0xc000000000000000,
-        length: 0x3000
+        length: 0x100000,
     },
     Drive {
-        backing: concat!(drive_label_3!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_3!(), ".ext2"),
         shared: false,
         label: drive_label_3!(),
         start: 0xd000000000000000,
-        length: 0x1000
+        length: 0x1000,
     },
     Drive {
-        backing: concat!(drive_label_4!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_4!(), ".ext2"),
         shared: false,
         label: drive_label_4!(),
         start: 0xe000000000000000,
-        length: 0x1000
-    }
+        length: 0x1000,
+    },
+];
+
+const OPPONENT_TEST_DRIVES: [Drive; 5] = [
+    Drive {
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), ".ext2"),
+        shared: false,
+        label: drive_label_0!(),
+        start: 0x8000000000000000,
+        length: 0x3c00000,
+    },
+    Drive {
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), ".ext2"),
+        shared: false,
+        label: drive_label_1!(),
+        start: 0xa000000000000000,
+        length: 0x400000,
+    },
+    Drive {
+        backing: concat!(DAPP_DATA_PATH!(), "0_opponent.br.tar.full"),
+        shared: false,
+        label: drive_label_2!(),
+        start: 0xc000000000000000,
+        length: 0x100000,
+    },
+    Drive {
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_3!(), ".ext2"),
+        shared: false,
+        label: drive_label_3!(),
+        start: 0xd000000000000000,
+        length: 0x1000,
+    },
+    Drive {
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_4!(), ".ext2"),
+        shared: false,
+        label: drive_label_4!(),
+        start: 0xe000000000000000,
+        length: 0x1000,
+    },
 ];
 
 const TEST_ROM: Rom = Rom {
-    bootargs: concat!("console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
-                    mtdparts_string!(),
-                    " quiet -- /mnt/anuto/bin/verify"),
-    backing: "rom.bin"
+    bootargs: concat!(
+        "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
+        mtdparts_string!(),
+        " quiet -- /mnt/anuto/bin/verify"
+    ),
+    backing: "rom.bin",
 };
 
-fn build_machine() -> Result<cartesi_base::MachineRequest> {
+fn build_machine(is_opponent: bool) -> Result<cartesi_base::MachineRequest> {
     let mut ram_msg = cartesi_base::RAM::new();
     ram_msg.set_length(TEST_RAM.length);
-    ram_msg.set_backing(EMULATOR_BASE_PATH.to_string() + &TEST_RAM.backing.to_string());
+    ram_msg.set_backing(EMULATOR_FILES_PATH!().to_string() + &TEST_RAM.backing.to_string());
 
     let mut drives_msg: Vec<cartesi_base::Drive> = Vec::new();
 
-    for drive in TEST_DRIVES.iter() {
-        let drive_path = EMULATOR_BASE_PATH.to_string() + &drive.backing.to_string();
+    let mut drives = TEST_DRIVES;
+    if is_opponent {
+        drives = OPPONENT_TEST_DRIVES;
+    }
+
+    for drive in drives.iter() {
         let mut drive_msg = cartesi_base::Drive::new();
 
         drive_msg.set_start(drive.start);
         drive_msg.set_length(drive.length);
-        drive_msg.set_backing(drive_path);
+        drive_msg.set_backing(drive.backing.to_string());
+        drive_msg.set_label(drive.label.to_string());
         drive_msg.set_shared(drive.shared);
 
         drives_msg.push(drive_msg);
@@ -348,7 +431,7 @@ fn build_machine() -> Result<cartesi_base::MachineRequest> {
 
     let mut rom_msg = cartesi_base::ROM::new();
     rom_msg.set_bootargs(TEST_ROM.bootargs.to_string());
-    rom_msg.set_backing(EMULATOR_BASE_PATH.to_string() + &TEST_ROM.backing.to_string());
+    rom_msg.set_backing(EMULATOR_FILES_PATH!().to_string() + &TEST_ROM.backing.to_string());
 
     let mut machine = cartesi_base::MachineRequest::new();
     machine.set_rom(rom_msg);

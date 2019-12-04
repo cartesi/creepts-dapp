@@ -22,5 +22,5 @@ emulator_interface = { path = "../tournament-dlib/arbitration-dlib/lib/grpc-inte
 state = { path = "../tournament-dlib/arbitration-dlib/dispatcher/state" }
 dispatcher = { path = "../tournament-dlib/arbitration-dlib/dispatcher/dispatcher" }
 grpc = { git = "https://github.com/cartesi/grpc-rust", branch = "make_marshall_public" }
-protobuf = "=2.7.0"
+protobuf = "2"
 bytes = "0.4.12"
