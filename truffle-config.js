@@ -10,9 +10,21 @@ const network = (name, network_id) => ({
 module.exports = {
   networks: {
     development: {
+      host: "localhost",
+      port: 8545,
+      network_id: "*",
+    },
+    ganache: {
       host: "ganache",
       port: 8545,
-      network_id: "*" // Match any network id
+      network_id: "*",
+      gas: 0xfffffffffff, // <-- Use this high gas value
+      gasPrice: 0x01      // <-- Use this low gas price
+    },
+    geth: {
+      host: "geth",
+      port: 8545,
+      network_id: "15",
     },
     coverage: {
       host: "localhost",

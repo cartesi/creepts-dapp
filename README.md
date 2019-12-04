@@ -15,6 +15,14 @@ To run execute:
 jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
 ```
 
+To run with `geth` instead of `ganache`:
+
+To run execute:
+```
+jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
+```
+
+
 This environment is still using private assets, like:
 
 * private docker images from Docker Hub

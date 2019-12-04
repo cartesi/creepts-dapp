@@ -48,10 +48,14 @@ COPY ./dispatcher-entrypoint.sh $BASE/bin/
 COPY ./config-template.yaml $BASE/etc/creepts/
 RUN mkdir -p $BASE/srv/creepts
 
+ENV ETHEREUM_HOST "ganache"
+ENV ETHEREUM_PORT "8545"
+ENV ETHEREUM_TIMEOUT "120s"
+
 CMD dockerize \
     -wait file:///opt/cartesi/etc/keys/keys_done \
-    -wait tcp://ganache:8545 \
+    -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -wait tcp://machine-manager:50051 \
     -wait tcp://logger:50051 \
-    -timeout 120s \
+    -timeout ${ETHEREUM_TIMEOUT} \
     $BASE/bin/dispatcher-entrypoint.sh

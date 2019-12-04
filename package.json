@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^1.0.26",
-    "solidity-coverage": "^0.5.11",
-    "truffle": "5.1.0"
+    "solidity-coverage": "^0.6.7",
+    "truffle": "5.1.2"
   }
 }

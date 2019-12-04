@@ -18,7 +18,7 @@ concerns:
 main_concern:
   abi: "/opt/cartesi/share/blockchain/contracts/DAppManager.json"
   user_address: "${ACCOUNT_ADDRESS}"
-confirmations: 0
+confirmations: 12
 max_delay: 500
 query_port: 3001
 services:
@@ -31,5 +31,5 @@ services:
       address: logger
       port: 50051
 testing: true
-url: http://ganache:8545
+url: ${ETHEREUM_URL}
 warn_delay: 30

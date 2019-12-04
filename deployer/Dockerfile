@@ -30,9 +30,10 @@ RUN npm install
 ENV ETHEREUM_HOST "ganache"
 ENV ETHEREUM_PORT "8545"
 ENV ETHEREUM_TIMEOUT "10s"
+ENV ETHEREUM_NETWORK "development"
 
 CMD dockerize \
     -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -timeout ${ETHEREUM_TIMEOUT} \
-    node_modules/.bin/truffle migrate \
+    node_modules/.bin/truffle migrate --network ${ETHEREUM_NETWORK} \
     && touch build/contracts/deploy_done
