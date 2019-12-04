@@ -5,7 +5,7 @@
   "dependencies": {
     "@cartesi/arbitration": "0.1.0-alpha.0",
     "@cartesi/machine-solidity-step": "0.1.0-alpha.0",
-    "@cartesi/tournament": "0.1.0-alpha.0",
+    "@cartesi/tournament": "0.1.0-alpha.2",
     "@cartesi/util": "0.1.0-alpha.6"
   },
   "devDependencies": {
