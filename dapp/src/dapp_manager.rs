@@ -7,6 +7,7 @@ use super::ethabi::Token;
 use super::ethereum_types::U256;
 use super::transaction;
 use super::transaction::TransactionRequest;
+use super::tournament::{Payload, Params};
 
 pub struct DAppManager();
 
@@ -41,7 +42,7 @@ impl DApp<()> for DAppManager {
     fn react(
         instance: &state::Instance,
         archive: &Archive,
-        post_payload: &Option<String>,
+        _post_payload: &Option<String>,
         _: &(),
     ) -> Result<Reaction> {
         // get context (state) of the compute instance
@@ -108,7 +109,18 @@ impl DApp<()> for DAppManager {
                     _ => {
                         // anuto is still active,
                         // pass control to the appropriate dapp
-                        return AnutoDApp::react(anuto_instance, archive, post_payload, &());
+                        let param = Params {
+                            hash: "2c6448d6c5ff9f1d3d13965c412606380006086d4160c40de53959482237e032".into()
+                        };
+
+                        let payload = Payload {
+                            action: "commit".into(),
+                            params: param
+                        };
+
+                        let payload_string = serde_json::to_string(&payload).unwrap();
+
+                        return AnutoDApp::react(anuto_instance, archive, &Some(payload_string), &());
                     }
                 }
             }

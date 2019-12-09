@@ -28,12 +28,12 @@ services:
     networks:
       - ethereum
 
-  emulator_setup:
-    build: emulator_setup
-    volumes:
-      - emulator_data:/root/host
-    environment:
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
+#  emulator_setup:
+#    build: emulator_setup
+#    volumes:
+#      - emulator_data:/root/host
+#    environment:
+#      GITHUB_TOKEN: ${GITHUB_TOKEN}
 
 {% for i in range(players) %}
   dispatcher_{{ i }}:
@@ -48,7 +48,7 @@ services:
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
       - ethereum
       - node_{{ i }}
@@ -58,7 +58,7 @@ services:
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
-      - dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
       WEB3_PROVIDER_URI: http://geth:8545
     networks:
@@ -70,8 +70,8 @@ services:
   machine_manager_{{ i }}:
     image: cartesi/machine-manager
     volumes:
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
-      - emulator_data:/opt/cartesi/srv/emulator-files
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./emulator_data:/opt/cartesi/srv/emulator-files
     networks:
       ethereum: {}
       node_{{ i }}:
@@ -81,7 +81,7 @@ services:
   anuto_server_{{ i }}:
     image: cartesi/anuto-server:develop-f4103222
     volumes:
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
       node_{{ i }}:
         aliases:

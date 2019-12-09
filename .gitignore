@@ -8,6 +8,7 @@ test/*/
 .vscode
 .node*
 *.bin
+*.ext2
 *.abi
 /out
 build

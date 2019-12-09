@@ -25,7 +25,7 @@ COPY ./npm-shrinkwrap.json .
 
 ARG NPM_TOKEN
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-RUN npm install
+RUN npm ci
 
 ENV ETHEREUM_HOST "ganache"
 ENV ETHEREUM_PORT "8545"

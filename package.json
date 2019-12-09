@@ -1,16 +1,39 @@
 {
+  "name": "@cartesi/creepts",
+  "version": "0.1.0-alpha.0",
+  "description": "Creepts by Cartesi",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cartesi/creepts-dapp.git"
+  },
+  "keywords": [
+    "cartesi"
+  ],
+  "author": "Danilo Tuler <danilo@cartesi.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/cartesi/creepts-dapp/issues"
+  },
+  "homepage": "https://github.com/cartesi/creepts-dapp#readme",
   "dependencies": {
-    "@cartesi/arbitration": "0.1.0-alpha.0",
-    "@cartesi/machine-solidity-step": "0.1.0-alpha.0",
-    "@cartesi/tournament": "0.1.0-alpha.2",
-    "@cartesi/util": "0.1.0-alpha.6"
+    "@cartesi/arbitration": "0.1.0-alpha.4",
+    "@cartesi/machine-solidity-step": "0.1.0-alpha.4",
+    "@cartesi/tournament": "0.1.0-alpha.4",
+    "@cartesi/logger": "0.1.0-alpha.3",
+    "@cartesi/util": "0.1.1"
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^1.0.26",
     "solidity-coverage": "^0.6.7",
-    "truffle": "5.1.2"
-  }
+    "truffle": "5.1.3"
+  },
+  "files": [
+    "contracts",
+    "migrations",
+    "build",
+    "truffle-config.js"
+  ]
 }

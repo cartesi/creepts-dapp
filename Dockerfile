@@ -54,6 +54,7 @@ ENV ETHEREUM_TIMEOUT "120s"
 
 CMD dockerize \
     -wait file:///opt/cartesi/etc/keys/keys_done \
+    -wait file:///opt/cartesi/share/blockchain/contracts/deploy_done \
     -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -wait tcp://machine-manager:50051 \
     -wait tcp://logger:50051 \
