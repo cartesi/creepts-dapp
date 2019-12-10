@@ -333,7 +333,7 @@ const TEST_DRIVES: [Drive; 5] = [
         length: 0x400000,
     },
     Drive {
-        backing: concat!(DAPP_DATA_PATH!(), "0.br.tar.full"),
+        backing: concat!(DAPP_DATA_PATH!(), "0.json.br.tar"),
         shared: false,
         label: drive_label_2!(),
         start: 0xc000000000000000,
@@ -371,7 +371,7 @@ const OPPONENT_TEST_DRIVES: [Drive; 5] = [
         length: 0x400000,
     },
     Drive {
-        backing: concat!(DAPP_DATA_PATH!(), "0_opponent.br.tar.full"),
+        backing: concat!(DAPP_DATA_PATH!(), "0_opponent.json.br.tar"),
         shared: false,
         label: drive_label_2!(),
         start: 0xc000000000000000,
