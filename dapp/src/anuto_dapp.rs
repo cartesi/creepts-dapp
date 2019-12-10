@@ -128,8 +128,8 @@ impl DApp<()> for AnutoDApp {
                     machine: machine_request.clone(),
                     opponent_machine: opponent_machine_request,
                     tournament_index: instance.index,
-                    page_log2_size: 7,
-                    tree_log2_size: 17,
+                    page_log2_size: 10,
+                    tree_log2_size: 20,
                     final_time: ctx.final_time.as_u64(),
                 };
 
