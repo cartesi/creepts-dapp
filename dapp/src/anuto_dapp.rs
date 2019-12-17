@@ -242,7 +242,7 @@ macro_rules! drive_label_0 {
 }
 macro_rules! drive_label_1 {
     () => {
-        "anutofs"
+        "creeptsfs"
     };
 }
 macro_rules! drive_label_2 {
@@ -397,7 +397,7 @@ const TEST_ROM: Rom = Rom {
     bootargs: concat!(
         "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
         mtdparts_string!(),
-        " quiet -- /mnt/anuto/bin/verify"
+        " quiet -- /mnt/creepts/bin/verify"
     ),
     backing: "rom.bin",
 };

@@ -18,7 +18,7 @@ COPY ./dapp/Cargo.lock ./
 RUN mkdir -p ./src && echo "fn main() { }" > ./src/main.rs
 RUN cargo build -j $(nproc) --release
 
-# Compile anuto test
+# Compile creepts
 COPY ./dapp/src ./src
 
 RUN cargo install -j $(nproc) --path .
