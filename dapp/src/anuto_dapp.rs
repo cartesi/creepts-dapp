@@ -266,16 +266,16 @@ macro_rules! mtdparts_string {
         concat!(
             "mtdparts=flash.0:-(",
             drive_label_0!(),
-            ")",
+            ");",
             "flash.1:-(",
             drive_label_1!(),
-            ")",
+            ");",
             "flash.2:-(",
             drive_label_2!(),
-            ")",
+            ");",
             "flash.3:-(",
             drive_label_3!(),
-            ")",
+            ");",
             "flash.4:-(",
             drive_label_4!(),
             ")"
@@ -397,7 +397,7 @@ const TEST_ROM: Rom = Rom {
     bootargs: concat!(
         "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
         mtdparts_string!(),
-        " quiet -- /mnt/creepts/bin/verify"
+        " -- /mnt/creeptsfs/bin/verify"
     ),
     backing: "rom.bin",
 };
