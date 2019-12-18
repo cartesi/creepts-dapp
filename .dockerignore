@@ -1,5 +1,4 @@
 node_modules/
 build/
 .git
-tournament-dlib/tournament/target
-dapp/target
+**/target
