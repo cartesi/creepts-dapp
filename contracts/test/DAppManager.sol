@@ -52,7 +52,6 @@ contract DAppManager is Decorated, Instantiator {
         uint256 _logDrivePosition,
         uint256 _scoreDriveLogSize,
         uint256 _logDriveLogSize,
-        bytes32 _setupHash,
         uint256 _level,
 
         uint256 _epochDuration,
@@ -72,7 +71,6 @@ contract DAppManager is Decorated, Instantiator {
         instance[currentIndex].logDrivePosition = _logDrivePosition;
         instance[currentIndex].scoreDriveLogSize = _scoreDriveLogSize;
         instance[currentIndex].logDriveLogSize = _logDriveLogSize;
-        instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].level = _level;
         instance[currentIndex].epochDuration = _epochDuration;
         instance[currentIndex].matchDuration = _matchDuration;
@@ -103,7 +101,7 @@ contract DAppManager is Decorated, Instantiator {
             i.logDrivePosition,
             i.scoreDriveLogSize,
             i.logDriveLogSize,
-            0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5, //i.setupHash,
+            bytes32(0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5), //i.setupHash,
             i.level,
             i.epochDuration,
             i.matchDuration,
