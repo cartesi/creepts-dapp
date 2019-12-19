@@ -47,7 +47,6 @@ contract DApp is Decorated, DAppInterface {
         address _rmAddress,
         address _mmAddress,
         uint256 _commitDuration,
-        uint256 _revealDuration,
         uint256 _scoreWordPosition,
         uint256 _logDrivePosition,
         uint256 _scoreDriveLogSize,
@@ -80,7 +79,6 @@ contract DApp is Decorated, DAppInterface {
         instance[currentIndex].currentState = state.WaitingCommitAndReveal;
         instance[currentIndex].revealIndex = instance[currentIndex].rm.instantiate(
             _commitDuration,
-            _revealDuration,
             _scoreWordPosition,
             _logDrivePosition,
             _scoreDriveLogSize,

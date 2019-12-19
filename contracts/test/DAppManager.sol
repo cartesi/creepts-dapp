@@ -24,7 +24,6 @@ contract DAppManager is Decorated, Instantiator {
         address rmAddress;
         address mmAddress;
         uint256 commitDuration;
-        uint256 revealDuration;
         uint256 scoreWordPosition;
         uint256 logDrivePosition;
         uint256 scoreDriveLogSize;
@@ -49,7 +48,6 @@ contract DAppManager is Decorated, Instantiator {
         address _rmAddress,
         address _mmAddress,
         uint256 _commitDuration,
-        uint256 _revealDuration,
         uint256 _scoreWordPosition,
         uint256 _logDrivePosition,
         uint256 _scoreDriveLogSize,
@@ -70,7 +68,6 @@ contract DAppManager is Decorated, Instantiator {
         instance[currentIndex].rmAddress = _rmAddress;
         instance[currentIndex].mmAddress = _mmAddress;
         instance[currentIndex].commitDuration = _commitDuration;
-        instance[currentIndex].revealDuration = _revealDuration;
         instance[currentIndex].scoreWordPosition = _scoreWordPosition;
         instance[currentIndex].logDrivePosition = _logDrivePosition;
         instance[currentIndex].scoreDriveLogSize = _scoreDriveLogSize;
@@ -102,12 +99,11 @@ contract DAppManager is Decorated, Instantiator {
             i.rmAddress,
             i.mmAddress,
             i.commitDuration,
-            i.revealDuration,
             i.scoreWordPosition,
             i.logDrivePosition,
             i.scoreDriveLogSize,
             i.logDriveLogSize,
-            "0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5", //i.setupHash,
+            0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5, //i.setupHash,
             i.level,
             i.epochDuration,
             i.matchDuration,
