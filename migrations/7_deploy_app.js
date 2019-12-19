@@ -15,12 +15,11 @@ module.exports = function(deployer, network, accounts) {
             RevealInstantiator.address, //rmAddress,
             MatchManagerInstantiator.address, //mmAddress,
             200, //commitDuration,
-            200, //revealDuration,
             (1<<63)+(3<<61), //scoreWordPosition,
             (1<<63)+(2<<61), //logDrivePosition,
             3, //scoreDriveLogSize,
             20, //logDriveLogSize,
-            "0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5", //setupHash: proof_data["proofs"]["level_after_write"]["proof"]["root_hash"]
+            0x2ef6909718e7962c48c93157e84d576461d7b6d3929348d838fa0270490172c5, //setupHash: proof_data["proofs"]["level_after_write"]["proof"]["root_hash"]
             0, //level,
             100, //epochDuration,
             50, //matchDuration,
