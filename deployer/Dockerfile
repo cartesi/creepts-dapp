@@ -14,6 +14,10 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
+RUN yarn global add truffle@5.1.4
+RUN yarn add @truffle/hdwallet-provider@1.0.27
+RUN yarn add @truffle/contract@4.1.2
+
 # must create base dir before switching to user node, so its owned by root
 WORKDIR /usr/src/app
 
@@ -21,11 +25,11 @@ COPY ./contracts ./contracts
 COPY ./migrations ./migrations
 COPY ./truffle-config.js .
 COPY ./package.json .
-COPY ./npm-shrinkwrap.json .
+COPY ./yarn.lock .
 
 ARG NPM_TOKEN
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-RUN npm ci
+RUN yarn install --production --frozen-lockfile
 
 ENV ETHEREUM_HOST "ganache"
 ENV ETHEREUM_PORT "8545"
@@ -35,5 +39,5 @@ ENV ETHEREUM_NETWORK "development"
 CMD dockerize \
     -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -timeout ${ETHEREUM_TIMEOUT} \
-    node_modules/.bin/truffle migrate --network ${ETHEREUM_NETWORK} \
+    truffle migrate --network ${ETHEREUM_NETWORK} \
     && touch build/contracts/deploy_done
