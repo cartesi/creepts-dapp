@@ -40319,9 +40319,9 @@
       }
     },
     "@cartesi/tournament": {
-      "version": "0.1.0-alpha.4",
-      "resolved": "https://registry.npmjs.org/@cartesi/tournament/-/tournament-0.1.0-alpha.4.tgz",
-      "integrity": "sha512-QvBXesjDCi9VLPUVwnfSzBr4/h0rURaePyM1hiE992KtsRmVnm8o8/HM7DSU0cRqr8ib0cmYHyXGmWyjnQhing==",
+      "version": "0.1.0-alpha.5",
+      "resolved": "https://registry.npmjs.org/@cartesi/tournament/-/tournament-0.1.0-alpha.5.tgz",
+      "integrity": "sha512-WIO3Qz6adiLtTjSsV5Le3yWN7KhDuLjWcQDsY93xkjhwrViOrl5d9mxG6hk1xD/KubRus1ARyA7A9ld+hgYStQ==",
       "requires": {
         "@cartesi/arbitration": "^0.1.0-alpha.4",
         "@cartesi/logger": "^0.1.0-alpha.3",
