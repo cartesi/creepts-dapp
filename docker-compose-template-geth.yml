@@ -22,7 +22,7 @@ services:
     environment:
       ETHEREUM_HOST: geth
       ETHEREUM_NETWORK: geth
-      ETHEREUM_TIMEOUT: 30s
+      ETHEREUM_TIMEOUT: 60s
     volumes:
       - truffle_data:/usr/src/app/build
     networks:
