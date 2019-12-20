@@ -8,6 +8,17 @@
 - docker-compose
 - jinja2
 
+### Cloning
+
+Make sure to include the submodules:
+```
+git clone --recurse-submodules ssh://github.com/cartesi-corp/anuto-dapp.git
+```
+or using the http address:
+```
+git clone --recurse-submodules https://github.com/cartesi-corp/anuto-dapp.git
+```
+
 ### Running
 
 To run execute:
@@ -16,12 +27,9 @@ jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITH
 ```
 
 To run with `geth` instead of `ganache`:
-
-To run execute:
 ```
 jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
 ```
-
 
 This environment is still using private assets, like:
 
