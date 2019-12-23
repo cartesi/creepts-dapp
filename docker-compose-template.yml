@@ -9,7 +9,7 @@ services:
     expose:
       - 8545
     networks:
-      - ganache
+      - ethereum
 
   deployer:
     depends_on: [ganache]
@@ -24,7 +24,7 @@ services:
     volumes:
       - truffle_data:/usr/src/app/build
     networks:
-      - ganache
+      - ethereum
 
   key_distributor:
     depends_on: [ganache]
@@ -34,12 +34,12 @@ services:
       {% for i in range(players) %}- key_data_{{ i }}:/key-{{ i }}
       {% endfor %}
 
-  emulator_setup:
-    build: emulator_setup
-    volumes:
-      - emulator_data:/root/host
-    environment:
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
+#  emulator_setup:
+#    build: emulator_setup
+#    volumes:
+#      - emulator_data:/root/host
+#    environment:
+#      GITHUB_TOKEN: ${GITHUB_TOKEN}
 
 {% for i in range(players) %}
   dispatcher_{{ i }}:
@@ -53,9 +53,9 @@ services:
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
-      - ganache
+      - ethereum
       - node_{{ i }}
 
   logger_{{ i }}:
@@ -63,11 +63,11 @@ services:
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
-      - ./dapp_data:/opt/cartesi/srv/logger-server
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
       WEB3_PROVIDER_URI: http://ganache:8545
     networks:
-      ganache: {}
+      ethereum: {}
       node_{{ i }}:
         aliases:
           - logger
@@ -75,10 +75,10 @@ services:
   machine_manager_{{ i }}:
     image: cartesi/machine-manager
     volumes:
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
-      - emulator_data:/opt/cartesi/srv/emulator-files
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./emulator_data:/opt/cartesi/srv/emulator-files
     networks:
-      ganache: {}
+      ethereum: {}
       node_{{ i }}:
         aliases:
           - machine-manager
@@ -86,7 +86,7 @@ services:
   anuto_server_{{ i }}:
     image: cartesi/anuto-server:develop-f4103222
     volumes:
-      - dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+      - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
       node_{{ i }}:
         aliases:
@@ -112,6 +112,6 @@ volumes:
   {% endfor %}
 
 networks:
-  ganache:
+  ethereum:
   {% for i in range(players) %}node_{{ i }}:
   {% endfor %}
