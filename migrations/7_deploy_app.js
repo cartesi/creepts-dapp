@@ -15,8 +15,6 @@ module.exports = function(deployer, network, accounts) {
             RevealInstantiator.address, //rmAddress,
             MatchManagerInstantiator.address, //mmAddress,
             200, //commitDuration,
-            (1<<63)+(3<<61), //scoreWordPosition,
-            (1<<63)+(2<<61), //logDrivePosition,
             3, //scoreDriveLogSize,
             20, //logDriveLogSize,
             //setupHash: HAS TO BE ADDED DIRECTLY IN test/DAppManager.sol
