@@ -131,56 +131,20 @@ contract DApp is Decorated, DAppInterface {
         return true;
     }
 
-    function getState(uint256 _index, address _user) public
+    function getState(uint256 _index, address _user) public view
         onlyInstantiated(_index)
         returns (
-            uint256[3] memory _uintValues,
-            bytes32, // setupHash
-            bytes32, // logHash
-            address, // winner address
-
-            bytes32 // current state
-
+            uint256,
+            bytes32,
+            uint256,
+            bytes32
         )
     {
-        DAppCtx memory i = instance[_index];
-
-        if (i.currentState == state.DAppFinished) {
-            address winner = i.mm.getWinner(i.matchManagerIndex);
-
-            uint256[3] memory uintValues = [
-               i.level,
-               getScore(i.revealIndex, winner),
-               i.finalTime
-            ];
-
-            return (
-                uintValues,
-                i.setupHash,
-
-                getLogHash(i.revealIndex, winner),
-                winner,
-
-                getCurrentState(_index, _user)
-            );
-        }
-
-        // if dapp isnt over, winner values are zero
-        uint256[3] memory uintValues = [
-           i.level,
-           0,
-           i.finalTime
-        ];
-
         return (
-            uintValues,
-            i.setupHash,
-
-            "0x00",
-            address(0),
-
-            getCurrentState(_index, _user)
-        );
+            instance[_index].level,
+            instance[_index].setupHash,
+            instance[_index].finalTime,
+            getCurrentState(_index, _user));
     }
 
     function getCurrentState(uint256 _index, address) public view

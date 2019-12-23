@@ -26,10 +26,10 @@
 extern crate protobuf;
 
 use super::dispatcher::{Archive, DApp, Reaction};
-use super::dispatcher::{AddressField, Bytes32Field, String32Field, U256Array3};
+use super::dispatcher::{Bytes32Field, String32Field, U256Field};
 use super::error::*;
 use super::ethabi::Token;
-use super::ethereum_types::{H256, U256, Address};
+use super::ethereum_types::{H256, U256};
 use super::tournament::reveal_commit::{RevealCommit, RevealCommitCtx, RevealCommitCtxParsed};
 use super::tournament::{cartesi_base, MachineTemplate, MatchManager};
 use super::transaction;
@@ -43,36 +43,27 @@ pub struct AnutoDApp();
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
 pub struct AnutoDAppCtxParsed(
-    U256Array3,     // level
-                    // score
-                    //finalTime
-    Bytes32Field,   // setupHash
-    Bytes32Field,   // logHash
-    AddressField,   // winner
-    String32Field,  // currentState
+    U256Field,     // level
+    Bytes32Field,  // setupHash
+    U256Field,     // finalTime
+    String32Field, // currentState
 );
 
 #[derive(Serialize, Debug)]
 pub struct AnutoDAppCtx {
     pub level: U256,
-    pub score: U256,
-    pub final_time: U256,
     pub setup_hash: H256,
-    pub log_hash: H256,
-    pub winner_address: Address,
+    pub final_time: U256,
     pub current_state: String,
 }
 
 impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
     fn from(parsed: AnutoDAppCtxParsed) -> AnutoDAppCtx {
         AnutoDAppCtx {
-            level: parsed.0.value[0],
-            score: parsed.0.value[1],
-            final_time: parsed.0.value[2],
+            level: parsed.0.value,
             setup_hash: parsed.1.value,
-            log_hash: parsed.2.value,
-            winner_address: parsed.3.value,
-            current_state: parsed.4.value,
+            final_time: parsed.2.value,
+            current_state: parsed.3.value,
         }
     }
 }
