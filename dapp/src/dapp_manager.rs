@@ -112,7 +112,7 @@ impl DApp<()> for DAppManager {
                         // anuto is still active,
                         // pass control to the appropriate dapp
                         let param = Params {
-                            hash: "9b04bf4c51b106361dc449c666c9bd057110ee3242774ac61c0b8f48b2c7531b".into()
+                            hash: "fe7a808b870492a94337d0c3682a3030029d9f479a93c2b2d162f79638850d01".into()
                         };
 
                         let payload = Payload {
