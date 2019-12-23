@@ -31,10 +31,10 @@
     "@cartesi/arbitration" "^0.1.0-alpha.4"
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/tournament@0.1.0-alpha.5":
-  version "0.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.0-alpha.5.tgz#93648d41c9a2388c09eb6d72864142efc6527675"
-  integrity sha512-WIO3Qz6adiLtTjSsV5Le3yWN7KhDuLjWcQDsY93xkjhwrViOrl5d9mxG6hk1xD/KubRus1ARyA7A9ld+hgYStQ==
+"@cartesi/tournament@0.1.0-alpha.6":
+  version "0.1.0-alpha.6"
+  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.0-alpha.6.tgz#040710af90dff01e5a358dc0539a2b7282edfd8d"
+  integrity sha512-rdFID65dVfQKarxWiy8CmsJ9ipWVwVlzTmqgmI7o82q1zMRsI3PVLm7jABJY+z/S4zV2nGK/fw2NrGRwvfZbwQ==
   dependencies:
     "@cartesi/arbitration" "^0.1.0-alpha.4"
     "@cartesi/logger" "^0.1.0-alpha.3"
