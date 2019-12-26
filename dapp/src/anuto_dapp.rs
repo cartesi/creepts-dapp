@@ -238,12 +238,12 @@ impl DApp<()> for AnutoDApp {
 // TODO: revise all the values below for the anuto game
 macro_rules! drive_label_0 {
     () => {
-        "rootfs"
+        "root"
     };
 }
 macro_rules! drive_label_1 {
     () => {
-        "creeptsfs"
+        "creepts"
     };
 }
 macro_rules! drive_label_2 {
@@ -320,14 +320,14 @@ const TEST_RAM: Ram = Ram {
 
 const TEST_DRIVES: [Drive; 5] = [
     Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), "fs.ext2"),
         shared: false,
         label: drive_label_0!(),
         start: 0x8000000000000000,
         length: 0x3c00000,
     },
     Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), "fs.ext2"),
         shared: false,
         label: drive_label_1!(),
         start: 0xa000000000000000,
@@ -358,14 +358,14 @@ const TEST_DRIVES: [Drive; 5] = [
 
 const OPPONENT_TEST_DRIVES: [Drive; 5] = [
     Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), "fs.ext2"),
         shared: false,
         label: drive_label_0!(),
         start: 0x8000000000000000,
         length: 0x3c00000,
     },
     Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), ".ext2"),
+        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), "fs.ext2"),
         shared: false,
         label: drive_label_1!(),
         start: 0xa000000000000000,
@@ -398,7 +398,7 @@ const TEST_ROM: Rom = Rom {
     bootargs: concat!(
         "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
         mtdparts_string!(),
-        " -- /mnt/creeptsfs/bin/verify"
+        " -- /mnt/creepts/bin/verify"
     ),
     backing: "rom.bin",
 };
