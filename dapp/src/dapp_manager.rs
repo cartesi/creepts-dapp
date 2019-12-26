@@ -60,7 +60,7 @@ impl DApp<()> for DAppManager {
         // but it is possible that the blockchain state changed between queries
         match ctx.current_state.as_ref() {
             "DAppFinished" => {
-                return Ok(Reaction::Idle);
+                return Ok(Reaction::Terminate);
             }
 
             "Idle" => {
