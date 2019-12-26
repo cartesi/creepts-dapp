@@ -6,19 +6,22 @@ RUN \
     apt-get install --no-install-recommends -y cmake protobuf-compiler && \
     rm -rf /var/lib/apt/lists/*
 
+WORKDIR $BASE/dapp
+
+# Compile dependencies
+COPY ./dapp/Cargo_cache.toml ./Cargo.toml
+RUN mkdir -p ./src && echo "fn main() { }" > ./src/main.rs
+RUN cargo build -j $(nproc) --release
+
 WORKDIR $BASE
 
 COPY ./tournament-dlib/ $BASE/tournament-dlib
 
 WORKDIR $BASE/dapp
 
-# Compile dependencies
+# Compile creepts
 COPY ./dapp/Cargo.toml ./
 COPY ./dapp/Cargo.lock ./
-RUN mkdir -p ./src && echo "fn main() { }" > ./src/main.rs
-RUN cargo build -j $(nproc) --release
-
-# Compile creepts
 COPY ./dapp/src ./src
 
 RUN cargo install -j $(nproc) --path .
