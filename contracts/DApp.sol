@@ -91,19 +91,19 @@ contract DApp is Decorated, DAppInterface {
     function claimMatches(uint256 _index) public onlyInstantiated(_index) {
         require(instance[_index].currentState == state.WaitingCommitAndReveal, "The state is not WaitingCommitAndReveal");
 
-        bytes32 revealState = instance[currentIndex].rm.getCurrentState(instance[_index].revealIndex);
+        bytes32 revealState = instance[_index].rm.getCurrentState(instance[_index].revealIndex);
 
         if (revealState == "CommitRevealDone") {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
-                instance[currentIndex].epochDuration,
-                instance[currentIndex].matchDuration,
-                instance[currentIndex].roundDuration,
-                instance[currentIndex].finalTime,
+                instance[_index].epochDuration,
+                instance[_index].matchDuration,
+                instance[_index].roundDuration,
+                instance[_index].finalTime,
                 address(this), // dapp address
                 _index, // dapp index
-                instance[currentIndex].machineAddress);
+                instance[_index].machineAddress);
         } else {
             revert("The subinstance commit and reveal is still active");
         }
@@ -114,10 +114,10 @@ contract DApp is Decorated, DAppInterface {
     {
         require(instance[_index].currentState == state.WaitingMatches, "The state is not WaitingMatches");
 
-        bytes32 matchManagerState = instance[currentIndex].mm.getCurrentState(instance[_index].matchManagerIndex);
+        bytes32 matchManagerState = instance[_index].mm.getCurrentState(instance[_index].matchManagerIndex);
 
         if (matchManagerState == "MatchesOver") {
-            instance[currentIndex].currentState = state.DAppFinished;
+            instance[_index].currentState = state.DAppFinished;
         } else {
             revert("The subinstance matches is still active");
         }
