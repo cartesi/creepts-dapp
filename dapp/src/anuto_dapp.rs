@@ -31,7 +31,8 @@ use super::error::*;
 use super::ethabi::Token;
 use super::ethereum_types::{H256, U256};
 use super::tournament::reveal_commit::{RevealCommit, RevealCommitCtx, RevealCommitCtxParsed};
-use super::tournament::{cartesi_base, MachineTemplate, MatchManager};
+use super::tournament::matchmanager::{MatchManager, MatchManagerCtx, MatchManagerCtxParsed};
+use super::tournament::{cartesi_base, MachineTemplate};
 use super::transaction;
 use super::transaction::TransactionRequest;
 
@@ -150,6 +151,28 @@ impl DApp<()> for AnutoDApp {
                         ctx.current_state
                     )),
                 ))?;
+
+                let match_manager_parsed: MatchManagerCtxParsed = serde_json::from_str(&match_manager_instance.json_data)
+                .chain_err(|| {
+                    format!(
+                        "Could not parse match manager instance json_data: {}",
+                        &match_manager_instance.json_data
+                    )
+                })?;
+                let match_manager_ctx: MatchManagerCtx = match_manager_parsed.into();
+                
+                if match_manager_ctx.current_state == "MatchesOver" {
+                    let request = TransactionRequest {
+                        concern: instance.concern.clone(),
+                        value: U256::from(0),
+                        function: "claimFinished".into(),
+                        data: vec![Token::Uint(instance.index)],
+                        gas: None,
+                        strategy: transaction::Strategy::Simplest,
+                    };
+
+                    return Ok(Reaction::Transaction(request));
+                }
 
                 let machine_request = build_machine(false)
                     .chain_err(|| format!("could not build machine message"))?;

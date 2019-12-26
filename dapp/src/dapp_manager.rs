@@ -59,7 +59,7 @@ impl DApp<()> for DAppManager {
         // these states should not occur as they indicate an innactive instance,
         // but it is possible that the blockchain state changed between queries
         match ctx.current_state.as_ref() {
-            "DAppFinnished" => {
+            "DAppFinished" => {
                 return Ok(Reaction::Idle);
             }
 
@@ -96,7 +96,7 @@ impl DApp<()> for DAppManager {
                 let anuto_ctx: AnutoDAppCtx = anuto_parsed.into();
 
                 match anuto_ctx.current_state.as_ref() {
-                    "DAppFinnished" => {
+                    "DAppFinished" => {
                         // claim Finished in dappmock test contract
                         let request = TransactionRequest {
                             concern: instance.concern.clone(),
