@@ -6,6 +6,9 @@ RUN \
     apt-get install --no-install-recommends -y cmake protobuf-compiler && \
     rm -rf /var/lib/apt/lists/*
 
+# install wagyu utility for mnemonic handling
+RUN cargo install wagyu
+
 WORKDIR $BASE/dapp
 
 # Compile dependencies
@@ -33,7 +36,7 @@ ENV BASE /opt/cartesi
 
 RUN \
     apt-get update && \
-    apt-get install --no-install-recommends -y ca-certificates wget gettext && \
+    apt-get install --no-install-recommends -y ca-certificates wget gettext jq && \
     rm -rf /var/lib/apt/lists/*
 
 ENV DOCKERIZE_VERSION v0.6.1
@@ -43,8 +46,9 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 WORKDIR /opt/cartesi
 
-# Copy the build artifact from the build stage
+# Copy the build artifacts from the build stage
 COPY --from=build /usr/local/cargo/bin/anuto_dapp $BASE/bin/creepts
+COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
 # Copy dispatcher scripts
 COPY ./dispatcher-entrypoint.sh $BASE/bin/
@@ -55,11 +59,4 @@ ENV ETHEREUM_HOST "ganache"
 ENV ETHEREUM_PORT "8545"
 ENV ETHEREUM_TIMEOUT "120s"
 
-CMD dockerize \
-    -wait file:///opt/cartesi/etc/keys/keys_done \
-    -wait file:///opt/cartesi/share/blockchain/contracts/deploy_done \
-    -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
-    -wait tcp://machine-manager:50051 \
-    -wait tcp://logger:50051 \
-    -timeout ${ETHEREUM_TIMEOUT} \
-    $BASE/bin/dispatcher-entrypoint.sh
+ENTRYPOINT $BASE/bin/dispatcher-entrypoint.sh
