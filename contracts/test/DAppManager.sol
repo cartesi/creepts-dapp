@@ -110,7 +110,7 @@ contract DAppManager is Decorated, Instantiator {
         bytes32 dAppState = dapp.getCurrentState(instance[_index].dappIndex, msg.sender);
 
         if (dAppState == "DAppFinished") {
-            instance[currentIndex].currentState = state.DAppFinished;
+            instance[_index].currentState = state.DAppFinished;
         } else {
             revert("The subinstance compute is still active");
         }
