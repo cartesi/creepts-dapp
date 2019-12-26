@@ -20,7 +20,7 @@ module.exports = function(deployer, network, accounts) {
             //setupHash: HAS TO BE ADDED DIRECTLY IN test/DAppManager.sol
             0, //level,
             100, //epochDuration,
-            50, //matchDuration,
+            150, //matchDuration,
             25, //roundDuration,
             1e13, //finalTime,
             Step.address //machineAddress
