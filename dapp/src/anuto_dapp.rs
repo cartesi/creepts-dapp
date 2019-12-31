@@ -354,7 +354,7 @@ const TEST_DRIVES: [Drive; 5] = [
         shared: false,
         label: drive_label_1!(),
         start: 0xa000000000000000,
-        length: 0x400000,
+        length: 0x2800000,
     },
     Drive {
         backing: concat!(DAPP_DATA_PATH!(), "0.json.br.cpio"),
@@ -392,7 +392,7 @@ const OPPONENT_TEST_DRIVES: [Drive; 5] = [
         shared: false,
         label: drive_label_1!(),
         start: 0xa000000000000000,
-        length: 0x400000,
+        length: 0x2800000,
     },
     Drive {
         backing: concat!(DAPP_DATA_PATH!(), "0_opponent.json.br.cpio"),

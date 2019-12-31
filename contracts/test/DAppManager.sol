@@ -93,7 +93,7 @@ contract DAppManager is Decorated, Instantiator {
             i.commitDuration,
             i.scoreDriveLogSize,
             i.logDriveLogSize,
-            bytes32(0x5d3131041088c77a514ce0cc99b8e18dc0c7f4392a15a53e74102eb9b1277ee4), //i.setupHash,
+            bytes32(0x9a17dcfeac0b363ec880a99416b9e8984a09290949d4a554a146eb6ba6cd9157), //i.setupHash,
             i.level,
             i.epochDuration,
             i.matchDuration,
