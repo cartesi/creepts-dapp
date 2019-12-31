@@ -40,6 +40,16 @@ contract DAppManager is Decorated, Instantiator {
     }
 
     mapping(uint256 => DAppManagerCtx) internal instance;
+    bytes32[8] setupHashes = [
+        bytes32(0x83a2b88934ac816c45e810b1c4344b214f88ccc7ecc9b5917cf6051b789974dd),
+        bytes32(0xdb886e23cce224acb75ae42bdebe44bbf07a3eca51a6629043d1e4e6518a42cb),
+        bytes32(0x425b43d06f55cce660a04bd4b605536f13fb6dab5072f5ce62f3527e02db8718),
+        bytes32(0xa236a1fc9b5c31ef0d02801c1f00cc84e1d8afd0433797e201b5044676a39108),
+        bytes32(0xa7700ff2f7e37ef8ade81d66926373688960812568485e4deecf02598b57e2b9),
+        bytes32(0x367d8064182ac7e32c33604cf1c77bbabea8c1810f9d3007414d1bdcfda11196),
+        bytes32(0xcd6bdaba99ef44c205ffa08f5c78d043d40a45ecd0ee54f94fb8865a3d6ddd37),
+        bytes32(0xbc221d51b0d9c024e0d2bb9067ad42907b17da6e916d20eab2d538561044db46)
+    ];
 
     constructor(
         address _dappAddress,
@@ -56,6 +66,8 @@ contract DAppManager is Decorated, Instantiator {
         uint256 _finalTime,
         address _machineAddress
     ) public {
+        require(_level < 8, "Invalid level (0~7)");
+
         dapp = DAppInterface(_dappAddress);
 
         currentIndex = 0;
@@ -93,7 +105,7 @@ contract DAppManager is Decorated, Instantiator {
             i.commitDuration,
             i.scoreDriveLogSize,
             i.logDriveLogSize,
-            bytes32(0x9a17dcfeac0b363ec880a99416b9e8984a09290949d4a554a146eb6ba6cd9157), //i.setupHash,
+            setupHashes[i.level],
             i.level,
             i.epochDuration,
             i.matchDuration,

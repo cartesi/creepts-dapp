@@ -43,6 +43,7 @@ contract DApp is Decorated, DAppInterface {
         owner = msg.sender;
     }
 
+    // add check onlyOwner(msg.sender)
     function instantiate(
         address _rmAddress,
         address _mmAddress,

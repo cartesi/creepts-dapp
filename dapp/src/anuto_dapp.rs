@@ -122,10 +122,10 @@ impl DApp<()> for AnutoDApp {
 
                     return Ok(Reaction::Transaction(request));
                 }
-                let machine_request = build_machine(false)
+                let machine_request = build_machine(false, instance.index, ctx.level)
                     .chain_err(|| format!("could not build machine message"))?;
                 let opponent_machine_request =
-                    build_machine(true).chain_err(|| format!("could not build machine message"))?;
+                    build_machine(true, instance.index, ctx.level).chain_err(|| format!("could not build machine message"))?;
                 let machine_template: MachineTemplate = MachineTemplate {
                     machine: machine_request.clone(),
                     opponent_machine: opponent_machine_request,
@@ -174,10 +174,10 @@ impl DApp<()> for AnutoDApp {
                     return Ok(Reaction::Transaction(request));
                 }
 
-                let machine_request = build_machine(false)
+                let machine_request = build_machine(false, instance.index, ctx.level)
                     .chain_err(|| format!("could not build machine message"))?;
                 let opponent_machine_request =
-                    build_machine(true).chain_err(|| format!("could not build machine message"))?;
+                    build_machine(true, instance.index, ctx.level).chain_err(|| format!("could not build machine message"))?;
                 let machine_template: MachineTemplate = MachineTemplate {
                     machine: machine_request.clone(),
                     opponent_machine: opponent_machine_request,
@@ -259,200 +259,162 @@ impl DApp<()> for AnutoDApp {
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // TODO: revise all the values below for the anuto game
-macro_rules! drive_label_0 {
-    () => {
-        "root"
-    };
+
+fn drive_label_0() -> String {
+    "root".to_string()
 }
-macro_rules! drive_label_1 {
-    () => {
-        "creepts"
-    };
+fn drive_label_1() -> String {
+    "creepts".to_string()
 }
-macro_rules! drive_label_2 {
-    () => {
-        "log"
-    };
+fn drive_label_2() -> String {
+    "log".to_string()
 }
-macro_rules! drive_label_3 {
-    () => {
-        "level"
-    };
+fn drive_label_3() -> String {
+    "level".to_string()
 }
-macro_rules! drive_label_4 {
-    () => {
-        "output"
-    };
+fn drive_label_4() -> String {
+    "output".to_string()
 }
 
-macro_rules! mtdparts_string {
-    () => {
-        concat!(
-            "mtdparts=flash.0:-(",
-            drive_label_0!(),
-            ");",
-            "flash.1:-(",
-            drive_label_1!(),
-            ");",
-            "flash.2:-(",
-            drive_label_2!(),
-            ");",
-            "flash.3:-(",
-            drive_label_3!(),
-            ");",
-            "flash.4:-(",
-            drive_label_4!(),
-            ")"
-        );
-    };
+fn mtdparts_string() -> String {
+    format!(
+        "mtdparts=flash.0-({});flash.1-({});flash.2-({});flash.3-({});flash.4-({});",
+        drive_label_0(),
+        drive_label_1(),
+        drive_label_2(),
+        drive_label_3(),
+        drive_label_4())
 }
 
-macro_rules! EMULATOR_FILES_PATH {
-    () => {
-        "/opt/cartesi/srv/emulator-files/"
-    };
+fn bootargs() -> String {
+    format!(
+        "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw {} -- /mnt/creepts/bin/verify",
+        mtdparts_string(),
+    )
 }
-macro_rules! DAPP_DATA_PATH {
-    () => {
-        "/opt/cartesi/srv/creepts/"
-    };
+
+fn emulator_file_path() -> String {
+    "/opt/cartesi/srv/emulator-files/".to_string()
+}
+fn dapp_data_path() -> String {
+    "/opt/cartesi/srv/creepts/".to_string()
+}
+
+fn backing(path: String, label: String) -> String {
+    format!("{}{}.ext2", path, label)
+}
+fn fs_backing(path: String, label: String) -> String {
+    format!("{}{}fs.ext2", path, label)
+}
+fn level_backing(path: String, level: U256) -> String {
+    format!("{}{}.ext2", path, level)
+}
+fn log_backing(path: String, index: U256, is_opponent: bool) -> String {
+    if is_opponent {
+        format!("{}{}_opponent.json.br.cpio", path, index)
+    } else {
+        format!("{}{}.json.br.cpio", path, index)
+    }
 }
 
 struct Ram {
     length: u64,
-    backing: &'static str,
+    backing: String,
 }
 
 struct Rom {
-    bootargs: &'static str,
-    backing: &'static str,
+    bootargs: String,
+    backing: String,
 }
 
 struct Drive {
-    backing: &'static str,
+    backing: String,
     shared: bool,
-    label: &'static str,
+    label: String,
     start: u64,
     length: u64,
 }
 
-const TEST_RAM: Ram = Ram {
-    length: 512 << 20,
-    backing: "kernel.bin",
-};
+fn test_drives(is_opponent: bool, index: U256, level: U256) -> [Drive; 5] {
+    [
+        Drive {
+            backing: fs_backing(emulator_file_path(), drive_label_0()),
+            shared: false,
+            label: drive_label_0(),
+            start: 0x8000000000000000,
+            length: 0x3c00000,
+        },
+        Drive {
+            backing: fs_backing(emulator_file_path(), drive_label_1()),
+            shared: false,
+            label: drive_label_1(),
+            start: 0xa000000000000000,
+            length: 0x2800000,
+        },
+        Drive {
+            backing: log_backing(dapp_data_path(), U256::from(index), is_opponent),
+            shared: false,
+            label: drive_label_2(),
+            start: 0xc000000000000000,
+            length: 0x100000,
+        },
+        Drive {
+            backing: level_backing(emulator_file_path(), U256::from(level)),
+            shared: false,
+            label: drive_label_3(),
+            start: 0xd000000000000000,
+            length: 0x1000,
+        },
+        Drive {
+            backing: backing(emulator_file_path(), drive_label_4()),
+            shared: false,
+            label: drive_label_4(),
+            start: 0xe000000000000000,
+            length: 0x1000,
+        }
+    ]
+}
 
-const TEST_DRIVES: [Drive; 5] = [
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), "fs.ext2"),
-        shared: false,
-        label: drive_label_0!(),
-        start: 0x8000000000000000,
-        length: 0x3c00000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), "fs.ext2"),
-        shared: false,
-        label: drive_label_1!(),
-        start: 0xa000000000000000,
-        length: 0x2800000,
-    },
-    Drive {
-        backing: concat!(DAPP_DATA_PATH!(), "0.json.br.cpio"),
-        shared: false,
-        label: drive_label_2!(),
-        start: 0xc000000000000000,
-        length: 0x100000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_3!(), ".ext2"),
-        shared: false,
-        label: drive_label_3!(),
-        start: 0xd000000000000000,
-        length: 0x1000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_4!(), ".ext2"),
-        shared: false,
-        label: drive_label_4!(),
-        start: 0xe000000000000000,
-        length: 0x1000,
-    },
-];
+fn test_rom() -> Rom {
+    Rom {
+        bootargs: bootargs(),
+        backing: backing(emulator_file_path(), "rom.bin".to_string())
+    }
+}
 
-const OPPONENT_TEST_DRIVES: [Drive; 5] = [
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_0!(), "fs.ext2"),
-        shared: false,
-        label: drive_label_0!(),
-        start: 0x8000000000000000,
-        length: 0x3c00000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_1!(), "fs.ext2"),
-        shared: false,
-        label: drive_label_1!(),
-        start: 0xa000000000000000,
-        length: 0x2800000,
-    },
-    Drive {
-        backing: concat!(DAPP_DATA_PATH!(), "0_opponent.json.br.cpio"),
-        shared: false,
-        label: drive_label_2!(),
-        start: 0xc000000000000000,
-        length: 0x100000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_3!(), ".ext2"),
-        shared: false,
-        label: drive_label_3!(),
-        start: 0xd000000000000000,
-        length: 0x1000,
-    },
-    Drive {
-        backing: concat!(EMULATOR_FILES_PATH!(), drive_label_4!(), ".ext2"),
-        shared: false,
-        label: drive_label_4!(),
-        start: 0xe000000000000000,
-        length: 0x1000,
-    },
-];
+fn test_ram() -> Ram {
+    Ram {
+        length: 512 << 20,
+        backing: backing(emulator_file_path(), "kernel.bin".to_string())
+    }
+}
 
-const TEST_ROM: Rom = Rom {
-    bootargs: concat!(
-        "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw ",
-        mtdparts_string!(),
-        " -- /mnt/creepts/bin/verify"
-    ),
-    backing: "rom.bin",
-};
-
-fn build_machine(is_opponent: bool) -> Result<cartesi_base::MachineRequest> {
+fn build_machine(is_opponent: bool, index: U256, level: U256) -> Result<cartesi_base::MachineRequest> {
     let mut ram_msg = cartesi_base::RAM::new();
-    ram_msg.set_length(TEST_RAM.length);
-    ram_msg.set_backing(EMULATOR_FILES_PATH!().to_string() + &TEST_RAM.backing.to_string());
+    let test_ram = test_ram();
+    ram_msg.set_length(test_ram.length);
+    ram_msg.set_backing(test_ram.backing);
 
     let mut drives_msg: Vec<cartesi_base::Drive> = Vec::new();
 
-    let mut drives = TEST_DRIVES;
-    if is_opponent {
-        drives = OPPONENT_TEST_DRIVES;
-    }
+    let drives = test_drives(is_opponent, index, level);
 
     for drive in drives.iter() {
         let mut drive_msg = cartesi_base::Drive::new();
 
         drive_msg.set_start(drive.start);
         drive_msg.set_length(drive.length);
-        drive_msg.set_backing(drive.backing.to_string());
-        drive_msg.set_label(drive.label.to_string());
+        drive_msg.set_backing(drive.backing.clone());
+        drive_msg.set_label(drive.label.clone());
         drive_msg.set_shared(drive.shared);
 
         drives_msg.push(drive_msg);
     }
 
     let mut rom_msg = cartesi_base::ROM::new();
-    rom_msg.set_bootargs(TEST_ROM.bootargs.to_string());
-    rom_msg.set_backing(EMULATOR_FILES_PATH!().to_string() + &TEST_ROM.backing.to_string());
+    let test_rom = test_rom();
+    rom_msg.set_bootargs(test_rom.bootargs);
+    rom_msg.set_backing(test_rom.backing);
 
     let mut machine = cartesi_base::MachineRequest::new();
     machine.set_rom(rom_msg);
