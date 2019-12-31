@@ -21,8 +21,8 @@
   "dependencies": {
     "@cartesi/arbitration": "0.1.0-alpha.4",
     "@cartesi/machine-solidity-step": "0.1.0-alpha.4",
-    "@cartesi/tournament": "0.1.0-alpha.8",
-    "@cartesi/logger": "0.1.0-alpha.4",
+    "@cartesi/tournament": "0.1.0-alpha.9",
+    "@cartesi/logger": "0.1.0-alpha.5",
     "@cartesi/util": "0.1.1"
   },
   "devDependencies": {
