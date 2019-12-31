@@ -34,13 +34,12 @@ services:
       {% for i in range(players) %}- key_data_{{ i }}:/key-{{ i }}
       {% endfor %}
 
-#  emulator_setup:
-#    build: emulator_setup
-#    volumes:
-#      - emulator_data:/root/host
-#    environment:
-#      GITHUB_TOKEN: ${GITHUB_TOKEN}
-
+  creepts_emulator:
+    image: cartesi/creepts-emulator
+    volumes:
+      - emulator_data:/opt/cartesi/creepts
+    entrypoint: ls -al
+  
 {% for i in range(players) %}
   dispatcher_{{ i }}:
     # build: .
@@ -76,7 +75,7 @@ services:
     image: cartesi/machine-manager
     volumes:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
-      - ./emulator_data:/opt/cartesi/srv/emulator-files
+      - emulator_data:/opt/cartesi/srv/emulator-files
     networks:
       ethereum: {}
       node_{{ i }}:
