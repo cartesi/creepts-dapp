@@ -1,7 +1,9 @@
 #!/bin/sh
 
 echo "Unlocking account if geth is used"
-truffle exec unlockAccount.js --network ${ETHEREUM_NETWORK}
+truffle exec /opt/cartesi/deployer/unlockAccount.js --network ${ETHEREUM_NETWORK}
+
+find *
 
 echo "Deploying @cartesi/util"
 cd node_modules/@cartesi/util && truffle migrate --network ${ETHEREUM_NETWORK} && cd ../../..
@@ -21,11 +23,3 @@ cd node_modules/@cartesi/tournament && truffle migrate --network ${ETHEREUM_NETW
 
 echo "Deploying creepts"
 truffle migrate --network ${ETHEREUM_NETWORK}
-
-echo "Collecting json build files into ./build"
-mkdir -p ./build/contracts
-
-# copy deployment files needed by dispatcher (config-template.yaml)
-cat files | xargs -I % cp % ./build/contracts/
-
-find ./build

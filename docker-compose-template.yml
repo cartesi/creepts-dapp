@@ -22,7 +22,7 @@ services:
       ETHEREUM_HOST: ganache
       ETHEREUM_NETWORK: ganache
     volumes:
-      - truffle_data:/usr/src/app/build
+      - onchain_data:/opt/cartesi/share/blockchain
     networks:
       - ethereum
 
@@ -50,7 +50,7 @@ services:
       ETHEREUM_URL: http://ganache:8545
       DOCKER: "true"
     volumes:
-      - truffle_data:/opt/cartesi/share/blockchain
+      - onchain_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
@@ -60,7 +60,7 @@ services:
   logger_{{ i }}:
     image: cartesi/logger-server
     volumes:
-      - truffle_data:/opt/cartesi/share/blockchain
+      - onchain_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
@@ -104,7 +104,7 @@ services:
 
 volumes:
   ganache_data:
-  truffle_data:
+  onchain_data:
   emulator_data:
   {% for i in range(players) %}dapp_data_{{ i }}:
   key_data_{{ i }}:

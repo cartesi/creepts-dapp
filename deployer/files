@@ -1,8 +1,0 @@
-node_modules/@cartesi/arbitration/build/contracts/PartitionInstantiator.json
-node_modules/@cartesi/arbitration/build/contracts/MMInstantiator.json
-node_modules/@cartesi/arbitration/build/contracts/VGInstantiator.json
-node_modules/@cartesi/arbitration/build/contracts/ComputeInstantiator.json
-node_modules/@cartesi/tournament/build/contracts/MatchInstantiator.json
-node_modules/@cartesi/tournament/build/contracts/MatchManagerInstantiator.json
-node_modules/@cartesi/tournament/build/contracts/RevealInstantiator.json
-node_modules/@cartesi/logger/build/contracts/Logger.json

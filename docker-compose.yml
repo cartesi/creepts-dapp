@@ -1,0 +1,47 @@
+version: '3'
+services:
+  creepts_emulator:
+    image: cartesi/creepts-emulator
+    volumes:
+      - emulator_data:/opt/cartesi/creepts
+    entrypoint: ls -al
+
+  dispatcher:
+    image: cartesi/creepts
+    environment:
+      RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,anuto_dapp=trace
+      ETHEREUM_URL: wss://rinkeby.infura.io/v3/93b4e1af3e524cf5979ca45262b4d81b
+      NETWORK_ID: 4
+      DOCKER: "true"
+    volumes:
+      - ./dapp_data:/opt/cartesi/srv/creepts
+
+  logger:
+    image: cartesi/logger-server
+    volumes:
+      - ./dapp_data:/opt/cartesi/srv/logger-server
+    environment:
+      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/v3/93b4e1af3e524cf5979ca45262b4d81b
+  
+  machine_manager:
+    image: cartesi/machine-manager
+    volumes:
+      - ./dapp_data:/opt/cartesi/srv/creepts
+      - emulator_data:/opt/cartesi/srv/emulator-files
+  
+  anuto-server:
+    image: cartesi/anuto-server:develop-f4103222
+    volumes:
+      - ./dapp_data:/opt/cartesi/srv/creepts
+  
+  web:
+    depends_on: [anuto-server]
+    image: cartesi/creepts-web
+    environment:
+      REACT_APP_API_URL: /api
+    ports:
+      - "8090:80"
+  
+volumes:
+  emulator_data:
+  dapp_data:
