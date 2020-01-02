@@ -260,30 +260,15 @@ impl DApp<()> for AnutoDApp {
 
 // TODO: revise all the values below for the anuto game
 
-fn drive_label_0() -> String {
-    "root".to_string()
-}
-fn drive_label_1() -> String {
-    "creepts".to_string()
-}
-fn drive_label_2() -> String {
-    "log".to_string()
-}
-fn drive_label_3() -> String {
-    "level".to_string()
-}
-fn drive_label_4() -> String {
-    "output".to_string()
-}
 
 fn mtdparts_string() -> String {
     format!(
         "mtdparts=flash.0-({});flash.1-({});flash.2-({});flash.3-({});flash.4-({});",
-        drive_label_0(),
-        drive_label_1(),
-        drive_label_2(),
-        drive_label_3(),
-        drive_label_4())
+        "root".to_string(),
+        "creepts".to_string(),
+        "log".to_string(),
+        "level".to_string(),
+        "output".to_string())
 }
 
 fn bootargs() -> String {
@@ -300,14 +285,11 @@ fn dapp_data_path() -> String {
     "/opt/cartesi/srv/creepts/".to_string()
 }
 
-fn backing(path: String, label: String) -> String {
-    format!("{}{}.ext2", path, label)
-}
-fn fs_backing(path: String, label: String) -> String {
-    format!("{}{}fs.ext2", path, label)
+fn backing(path: String, filename: String) -> String {
+    format!("{}{}", path, filename)
 }
 fn level_backing(path: String, level: U256) -> String {
-    format!("{}{}.ext2", path, level)
+    format!("{}{}.bin", path, level)
 }
 fn log_backing(path: String, index: U256, is_opponent: bool) -> String {
     if is_opponent {
@@ -338,37 +320,37 @@ struct Drive {
 fn test_drives(is_opponent: bool, index: U256, level: U256) -> [Drive; 5] {
     [
         Drive {
-            backing: fs_backing(emulator_file_path(), drive_label_0()),
+            backing: backing(emulator_file_path(), "rootfs.ext2".to_string()),
             shared: false,
-            label: drive_label_0(),
+            label: "root".to_string(),
             start: 0x8000000000000000,
             length: 0x3c00000,
         },
         Drive {
-            backing: fs_backing(emulator_file_path(), drive_label_1()),
+            backing: backing(emulator_file_path(), "creeptsfs.ext2".to_string()),
             shared: false,
-            label: drive_label_1(),
+            label: "creepts".to_string(),
             start: 0xa000000000000000,
             length: 0x2800000,
         },
         Drive {
             backing: log_backing(dapp_data_path(), U256::from(index), is_opponent),
             shared: false,
-            label: drive_label_2(),
+            label: "log".to_string(),
             start: 0xc000000000000000,
             length: 0x100000,
         },
         Drive {
             backing: level_backing(emulator_file_path(), U256::from(level)),
             shared: false,
-            label: drive_label_3(),
+            label: "level".to_string(),
             start: 0xd000000000000000,
             length: 0x1000,
         },
         Drive {
-            backing: backing(emulator_file_path(), drive_label_4()),
+            backing: backing(emulator_file_path(), "output.bin".to_string()),
             shared: false,
-            label: drive_label_4(),
+            label: "output".to_string(),
             start: 0xe000000000000000,
             length: 0x1000,
         }
