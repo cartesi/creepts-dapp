@@ -50,7 +50,7 @@ services:
       ETHEREUM_URL: http://ganache:8545
       DOCKER: "true"
     volumes:
-      - onchain_data:/opt/cartesi/share/blockchain
+      - onchain_data:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
@@ -60,7 +60,7 @@ services:
   logger_{{ i }}:
     image: cartesi/logger-server
     volumes:
-      - onchain_data:/opt/cartesi/share/blockchain
+      - onchain_data:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
