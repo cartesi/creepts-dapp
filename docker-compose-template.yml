@@ -59,6 +59,7 @@ services:
 
   logger_{{ i }}:
     image: cartesi/logger-server
+    command: [ "-c", "/opt/cartesi/share/blockchain/node_modules/@cartesi/logger/build/contracts/Logger.json" ]
     volumes:
       - onchain_data:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
