@@ -1,4 +1,4 @@
-// Anuto DApp is the combination of the on-chain protocol and off-chain
+// Creepts DApp is the combination of the on-chain protocol and off-chain
 // protocol that work together to distinguish the winner of a tower defense
 // game tournament.
 
@@ -25,7 +25,8 @@
 
 extern crate protobuf;
 
-use super::dispatcher::{Archive, DApp, Reaction};
+use super::dispatcher::{Archive, Reaction};
+use super::dispatcher::DApp as DAppTrait;
 use super::dispatcher::{Bytes32Field, String32Field, U256Field};
 use super::error::*;
 use super::ethabi::Token;
@@ -36,14 +37,14 @@ use super::tournament::{cartesi_base, MachineTemplate};
 use super::transaction;
 use super::transaction::TransactionRequest;
 
-pub struct AnutoDApp();
+pub struct DApp();
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // these two structs and the From trait below shuld be
 // obtained from a simple derive
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
-pub struct AnutoDAppCtxParsed(
+pub struct DAppCtxParsed(
     U256Field,     // level
     Bytes32Field,  // setupHash
     U256Field,     // finalTime
@@ -51,16 +52,16 @@ pub struct AnutoDAppCtxParsed(
 );
 
 #[derive(Serialize, Debug)]
-pub struct AnutoDAppCtx {
+pub struct DAppCtx {
     pub level: U256,
     pub setup_hash: H256,
     pub final_time: U256,
     pub current_state: String,
 }
 
-impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
-    fn from(parsed: AnutoDAppCtxParsed) -> AnutoDAppCtx {
-        AnutoDAppCtx {
+impl From<DAppCtxParsed> for DAppCtx {
+    fn from(parsed: DAppCtxParsed) -> DAppCtx {
+        DAppCtx {
             level: parsed.0.value,
             setup_hash: parsed.1.value,
             final_time: parsed.2.value,
@@ -69,7 +70,7 @@ impl From<AnutoDAppCtxParsed> for AnutoDAppCtx {
     }
 }
 
-impl DApp<()> for AnutoDApp {
+impl DAppTrait<()> for DApp {
     /// React to the DApp contract, WaitingCommitAndReveal/WaitingMatches/DAppFinished
     fn react(
         instance: &state::Instance,
@@ -78,14 +79,14 @@ impl DApp<()> for AnutoDApp {
         _: &(),
     ) -> Result<Reaction> {
         // get context (state) of the DApp instance
-        let parsed: AnutoDAppCtxParsed =
+        let parsed: DAppCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
                     "Could not parse dapp instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: AnutoDAppCtx = parsed.into();
+        let ctx: DAppCtx = parsed.into();
         trace!("Context for dapp (index {}) {:?}", instance.index, ctx);
 
         match ctx.current_state.as_ref() {
@@ -207,14 +208,14 @@ impl DApp<()> for AnutoDApp {
         _: &(),
     ) -> Result<state::Instance> {
         // get context (state) of the arbitration test instance
-        let parsed: AnutoDAppCtxParsed =
+        let parsed: DAppCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
                     "Could not parse arbitration test instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: AnutoDAppCtx = parsed.into();
+        let ctx: DAppCtx = parsed.into();
         let json_data = serde_json::to_string(&ctx).unwrap();
 
         // get context (state) of the sub instances
@@ -242,7 +243,7 @@ impl DApp<()> for AnutoDApp {
         }
 
         let pretty_instance = state::Instance {
-            name: "AnutoDApp".to_string(),
+            name: "DApp".to_string(),
             concern: instance.concern.clone(),
             index: instance.index,
             json_data: json_data,
@@ -257,8 +258,6 @@ impl DApp<()> for AnutoDApp {
 // below are the codes to generate hard-coded new machine request
 // may need to revise in the future
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// TODO: revise all the values below for the anuto game
 
 
 fn mtdparts_string() -> String {

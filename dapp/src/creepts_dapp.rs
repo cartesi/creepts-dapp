@@ -1,5 +1,6 @@
-use super::anuto_dapp::{AnutoDApp, AnutoDAppCtx, AnutoDAppCtxParsed};
-use super::dispatcher::{Archive, DApp, Reaction};
+use super::dapp::{DApp, DAppCtx, DAppCtxParsed};
+use super::dispatcher::{Archive, Reaction};
+use super::dispatcher::DApp as DAppTrait;
 use super::dispatcher::{String32Field, U256Field};
 use super::error::Result;
 use super::error::*;
@@ -9,34 +10,34 @@ use super::transaction;
 use super::transaction::TransactionRequest;
 use super::tournament::{Payload, Params};
 
-pub struct DAppManager();
+pub struct CreeptsDApp();
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // these two structs and the From trait below shuld be
 // obtained from a simple derive
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #[derive(Serialize, Deserialize)]
-struct DAppManagerCtxParsed(
+struct CreeptsDAppCtxParsed(
     U256Field,     // dappIndex
     String32Field, // currentState
 );
 
 #[derive(Serialize, Debug)]
-struct DAppManagerCtx {
+struct CreeptsDAppCtx {
     dapp_index: U256,
     current_state: String,
 }
 
-impl From<DAppManagerCtxParsed> for DAppManagerCtx {
-    fn from(parsed: DAppManagerCtxParsed) -> DAppManagerCtx {
-        DAppManagerCtx {
+impl From<CreeptsDAppCtxParsed> for CreeptsDAppCtx {
+    fn from(parsed: CreeptsDAppCtxParsed) -> CreeptsDAppCtx {
+        CreeptsDAppCtx {
             dapp_index: parsed.0.value,
             current_state: parsed.1.value,
         }
     }
 }
 
-impl DApp<()> for DAppManager {
+impl DAppTrait<()> for CreeptsDApp {
     /// React to the DApp contract, submitting solutions, confirming
     /// or challenging them when appropriate
     fn react(
@@ -46,14 +47,14 @@ impl DApp<()> for DAppManager {
         _: &(),
     ) -> Result<Reaction> {
         // get context (state) of the compute instance
-        let parsed: DAppManagerCtxParsed =
+        let parsed: CreeptsDAppCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
                     "Could not parse compute instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: DAppManagerCtx = parsed.into();
+        let ctx: CreeptsDAppCtx = parsed.into();
         trace!("Context for mockDApp (index {}) {:?}", instance.index, ctx);
 
         // these states should not occur as they indicate an innactive instance,
@@ -78,24 +79,24 @@ impl DApp<()> for DAppManager {
             }
 
             "DAppRunning" => {
-                // we inspect the anuto contract
-                let anuto_instance = instance.sub_instances.get(0).ok_or(Error::from(
+                // we inspect the dapp contract
+                let dapp_instance = instance.sub_instances.get(0).ok_or(Error::from(
                     ErrorKind::InvalidContractState(format!(
-                        "There is no anuto instance {}",
+                        "There is no dapp instance {}",
                         ctx.current_state
                     )),
                 ))?;
 
-                let anuto_parsed: AnutoDAppCtxParsed =
-                    serde_json::from_str(&anuto_instance.json_data).chain_err(|| {
+                let dapp_parsed: DAppCtxParsed =
+                    serde_json::from_str(&dapp_instance.json_data).chain_err(|| {
                         format!(
-                            "Could not parse anuto instance json_data: {}",
-                            &anuto_instance.json_data
+                            "Could not parse dapp instance json_data: {}",
+                            &dapp_instance.json_data
                         )
                     })?;
-                let anuto_ctx: AnutoDAppCtx = anuto_parsed.into();
+                let dapp_ctx: DAppCtx = dapp_parsed.into();
 
-                match anuto_ctx.current_state.as_ref() {
+                match dapp_ctx.current_state.as_ref() {
                     "DAppFinished" => {
                         // claim Finished in dappmock test contract
                         let request = TransactionRequest {
@@ -109,7 +110,7 @@ impl DApp<()> for DAppManager {
                         return Ok(Reaction::Transaction(request));
                     }
                     _ => {
-                        // anuto is still active,
+                        // dapp is still active,
                         // pass control to the appropriate dapp
                         let param = Params {
                             hash: "fe7a808b870492a94337d0c3682a3030029d9f479a93c2b2d162f79638850d01".into()
@@ -122,7 +123,7 @@ impl DApp<()> for DAppManager {
 
                         let payload_string = serde_json::to_string(&payload).unwrap();
 
-                        return AnutoDApp::react(anuto_instance, archive, &Some(payload_string), &());
+                        return DApp::react(dapp_instance, archive, &Some(payload_string), &());
                     }
                 }
             }
@@ -138,14 +139,14 @@ impl DApp<()> for DAppManager {
         _: &(),
     ) -> Result<state::Instance> {
         // get context (state) of the match instance
-        let parsed: DAppManagerCtxParsed =
+        let parsed: CreeptsDAppCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
                 format!(
                     "Could not parse match instance json_data: {}",
                     &instance.json_data
                 )
             })?;
-        let ctx: DAppManagerCtx = parsed.into();
+        let ctx: CreeptsDAppCtx = parsed.into();
         let json_data = serde_json::to_string(&ctx).unwrap();
 
         // get context (state) of the sub instances
@@ -154,12 +155,12 @@ impl DApp<()> for DAppManager {
 
         for sub in &instance.sub_instances {
             pretty_sub_instances.push(Box::new(
-                AnutoDApp::get_pretty_instance(sub, archive, &()).unwrap(),
+                DApp::get_pretty_instance(sub, archive, &()).unwrap(),
             ))
         }
 
         let pretty_instance = state::Instance {
-            name: "DAppManager".to_string(),
+            name: "CreeptsDApp".to_string(),
             concern: instance.concern.clone(),
             index: instance.index,
             json_data: json_data,

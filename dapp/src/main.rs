@@ -1,4 +1,4 @@
-// Anuto DApp is the combination of the on-chain protocol and off-chain
+// Creepts DApp is the combination of the on-chain protocol and off-chain
 // protocol that work together to distinguish the winner of a tower defense
 // game tournament.
 
@@ -27,12 +27,12 @@
 #![recursion_limit = "1024"]
 #![warn(unused_extern_crates)]
 
-extern crate anuto_dapp;
+extern crate creepts_dapp;
 extern crate dispatcher;
 extern crate env_logger;
 extern crate utils;
 
-use anuto_dapp::DAppManager;
+use creepts_dapp::CreeptsDApp;
 use dispatcher::Dispatcher;
 use utils::print_error;
 
@@ -47,5 +47,5 @@ fn main() {
         }
     };
 
-    dispatcher.run::<DAppManager>();
+    dispatcher.run::<CreeptsDApp>();
 }

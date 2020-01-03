@@ -4,10 +4,10 @@ const RevealInstantiator = contract(require("@cartesi/tournament/build/contracts
 const Step = contract(require("@cartesi/machine-solidity-step/build/contracts/Step.json"));
 
 const DApp = artifacts.require("DApp");
-const DAppManager = artifacts.require("DAppManager");
+const CreeptsDApp = artifacts.require("CreeptsDApp");
 
 module.exports = function(deployer, network, accounts) {
-    // !!! setupHash should be modified manually in the DAppManager contract !!!
+    // !!! setupHash should be modified manually in the CreeptsDApp contract !!!
     deployer.then(async () => {
         MatchManagerInstantiator.setNetwork(deployer.network_id);
         RevealInstantiator.setNetwork(deployer.network_id);
@@ -15,7 +15,7 @@ module.exports = function(deployer, network, accounts) {
 
         await deployer.deploy(DApp);
         await deployer.deploy(
-            DAppManager,
+            CreeptsDApp,
             DApp.address, //dappAddress
             RevealInstantiator.address, //rmAddress,
             MatchManagerInstantiator.address, //mmAddress,

@@ -41,7 +41,7 @@ services:
     image: cartesi/creepts
     environment:
 
-      RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,anuto_dapp=trace
+      RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://geth:8545
       ETHEREUM_HOST: geth
       ETHEREUM_TIMEOUT: 240s

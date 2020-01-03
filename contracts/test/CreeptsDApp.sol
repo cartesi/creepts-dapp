@@ -1,4 +1,4 @@
-/// @title DAppManager
+/// @title CreeptsDApp
 /// @author Felipe Argento
 pragma solidity ^0.5.0;
 
@@ -6,7 +6,7 @@ pragma solidity ^0.5.0;
 import "@cartesi/util/contracts/Decorated.sol";
 import "../DAppInterface.sol";
 
-contract DAppManager is Decorated, Instantiator {
+contract CreeptsDApp is Decorated, Instantiator {
 
     DAppInterface private dapp;
 
@@ -16,7 +16,7 @@ contract DAppManager is Decorated, Instantiator {
         DAppFinished
     }
 
-    struct DAppManagerCtx {
+    struct CreeptsDAppCtx {
         uint256 dappIndex;
         address dappAddress;
 
@@ -39,7 +39,7 @@ contract DAppManager is Decorated, Instantiator {
         state currentState;
     }
 
-    mapping(uint256 => DAppManagerCtx) internal instance;
+    mapping(uint256 => CreeptsDAppCtx) internal instance;
     bytes32[8] setupHashes = [
         bytes32(0x83a2b88934ac816c45e810b1c4344b214f88ccc7ecc9b5917cf6051b789974dd),
         bytes32(0xdb886e23cce224acb75ae42bdebe44bbf07a3eca51a6629043d1e4e6518a42cb),
@@ -93,12 +93,12 @@ contract DAppManager is Decorated, Instantiator {
     }
 
     function claimDAppRunning(uint256 _index) public {
-        DAppManagerCtx memory i = instance[_index];
+        CreeptsDAppCtx memory i = instance[_index];
         require(i.currentState == state.Idle, "State has to be Idle");
 
         instance[_index].currentState = state.DAppRunning;
 
-        // !!! setupHash should be modified manually in the DAppManager contract !!!
+        // !!! setupHash should be modified manually in the CreeptsDApp contract !!!
         instance[_index].dappIndex = dapp.instantiate(
             i.rmAddress,
             i.mmAddress,

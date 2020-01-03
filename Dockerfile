@@ -47,7 +47,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 WORKDIR /opt/cartesi
 
 # Copy the build artifacts from the build stage
-COPY --from=build /usr/local/cargo/bin/anuto_dapp $BASE/bin/creepts
+COPY --from=build /usr/local/cargo/bin/creepts_dapp $BASE/bin/creepts
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
 # Copy dispatcher scripts

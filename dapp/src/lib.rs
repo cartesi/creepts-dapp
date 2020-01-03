@@ -1,4 +1,4 @@
-// Anuto DApp is the combination of the on-chain protocol and off-chain
+// Creepts DApp is the combination of the on-chain protocol and off-chain
 // protocol that work together to distinguish the winner of a tower defense
 // game tournament.
 
@@ -24,8 +24,8 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 #![warn(unused_extern_crates)]
-pub mod anuto_dapp;
-pub mod dapp_manager;
+pub mod dapp;
+pub mod creepts_dapp;
 
 extern crate error;
 
@@ -39,5 +39,5 @@ extern crate ethereum_types;
 extern crate tournament;
 extern crate transaction;
 
-pub use anuto_dapp::AnutoDApp;
-pub use dapp_manager::DAppManager;
+pub use dapp::DApp;
+pub use creepts_dapp::CreeptsDApp;
