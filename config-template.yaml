@@ -13,10 +13,10 @@ concerns:
     user_address: "${ACCOUNT_ADDRESS}"
   - abi: "/opt/cartesi/share/blockchain/node_modules/@cartesi/tournament/build/contracts/RevealInstantiator.json"
     user_address: "${ACCOUNT_ADDRESS}"
-  - abi: "/opt/cartesi/share/blockchain/build/contracts/DApp.json"
+  - abi: "/opt/cartesi/share/blockchain/node_modules/@cartesi/creepts/build/contracts/DApp.json"
     user_address: "${ACCOUNT_ADDRESS}"
 main_concern:
-  abi: "/opt/cartesi/share/blockchain/build/contracts/DAppManager.json"
+  abi: "/opt/cartesi/share/blockchain/node_modules/@cartesi/creepts/build/contracts/CreeptsDApp.json"
   user_address: "${ACCOUNT_ADDRESS}"
 confirmations: 12
 max_delay: 500

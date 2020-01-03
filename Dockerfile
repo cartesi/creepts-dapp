@@ -1,27 +1,13 @@
 FROM node:12-alpine as onchain
 
-RUN apk add --no-cache \
-    build-base \
-    git \
-    openssl \
-    python \
-    python-dev \
-    py-pip
-
 ENV BASE /opt/cartesi
-
-# must create base dir before switching to user node, so its owned by root
 WORKDIR $BASE/share/blockchain
 
-COPY ./contracts ./contracts
-COPY ./migrations ./migrations
-COPY ./truffle-config.js .
-COPY ./package.json .
-COPY ./yarn.lock .
-
 ARG NPM_TOKEN
+ARG TAG=latest
+
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-RUN yarn install --production --frozen-lockfile --verbose
+RUN yarn add @cartesi/creepts@${TAG} --no-lockfile
 
 FROM rust:1.38 as build
 
@@ -72,7 +58,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 WORKDIR /opt/cartesi
 
 # Copy the build artifacts from the build stage
-COPY --from=onchain /opt/cartesi/share/blockchain /opt/cartesi/share/blockchain
+COPY --from=onchain $BASE/share/blockchain $BASE/share/blockchain
 COPY --from=build /usr/local/cargo/bin/creepts_dapp $BASE/bin/creepts
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
