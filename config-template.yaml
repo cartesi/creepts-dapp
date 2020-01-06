@@ -16,7 +16,7 @@ concerns:
   - abi: "/opt/cartesi/share/blockchain/contracts/DApp.json"
     user_address: "${ACCOUNT_ADDRESS}"
 main_concern:
-  abi: "/opt/cartesi/share/blockchain/contracts/DAppManager.json"
+  abi: "/opt/cartesi/share/blockchain/contracts/CreeptsDApp.json"
   user_address: "${ACCOUNT_ADDRESS}"
 confirmations: 12
 max_delay: 500

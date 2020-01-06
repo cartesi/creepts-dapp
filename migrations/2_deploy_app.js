@@ -22,7 +22,7 @@ module.exports = function(deployer, network, accounts) {
             200, //commitDuration,
             3, //scoreDriveLogSize,
             20, //logDriveLogSize,
-            //setupHash: HAS TO BE ADDED DIRECTLY IN test/DAppManager.sol
+            //setupHash: HAS TO BE ADDED DIRECTLY IN test/CreeptsDApp.sol
             0, //level,
             100, //epochDuration,
             150, //matchDuration,

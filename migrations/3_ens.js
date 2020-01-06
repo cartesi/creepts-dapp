@@ -9,7 +9,7 @@ const MatchManagerInstantiator = contract(require("@cartesi/tournament/build/con
 const RevealInstantiator = contract(require("@cartesi/tournament/build/contracts/RevealInstantiator.json"));
 
 const DApp = artifacts.require("DApp");
-const DAppManager = artifacts.require("DAppManager");
+const CreeptsDApp = artifacts.require("CreeptsDApp");
 
 module.exports = function (deployer, network, accounts) {
     deployer.then(async () => {
@@ -38,8 +38,8 @@ module.exports = function (deployer, network, accounts) {
                     await deployer.ens.setAddress(fqdn, contract.address, { from: accounts[0] });
                 }
                 
-                console.log(`Registering '${DAppManager.address}' to '${domain}', from ${accounts[0]}`);
-                await deployer.ens.setAddress(domain, DAppManager.address, { from: accounts[0] });
+                console.log(`Registering '${CreeptsDApp.address}' to '${domain}', from ${accounts[0]}`);
+                await deployer.ens.setAddress(domain, CreeptsDApp.address, { from: accounts[0] });
             }
         }
     });
