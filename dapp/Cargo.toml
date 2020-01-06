@@ -1,7 +1,7 @@
 [package]
 description = "Cartesi Creepts Game"
 homepage = "https://cartesi.io"
-name = "creepts_dapp"
+name = "dapp"
 version = "0.1.0"
 authors = ["Cartesi Team"]
 

@@ -25,7 +25,6 @@
 
 #![warn(unused_extern_crates)]
 pub mod dapp;
-pub mod creepts_dapp;
 
 extern crate error;
 
@@ -40,4 +39,3 @@ extern crate tournament;
 extern crate transaction;
 
 pub use dapp::DApp;
-pub use creepts_dapp::CreeptsDApp;

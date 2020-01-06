@@ -4,7 +4,6 @@ const RevealInstantiator = contract(require("@cartesi/tournament/build/contracts
 const Step = contract(require("@cartesi/machine-solidity-step/build/contracts/Step.json"));
 
 const DApp = artifacts.require("DApp");
-const CreeptsDApp = artifacts.require("CreeptsDApp");
 
 module.exports = function(deployer, network, accounts) {
     // !!! setupHash should be modified manually in the CreeptsDApp contract !!!
@@ -14,22 +13,4 @@ module.exports = function(deployer, network, accounts) {
         Step.setNetwork(deployer.network_id);
 
         await deployer.deploy(DApp);
-        await deployer.deploy(
-            CreeptsDApp,
-            DApp.address, //dappAddress
-            RevealInstantiator.address, //rmAddress,
-            MatchManagerInstantiator.address, //mmAddress,
-            200, //commitDuration,
-            3, //scoreDriveLogSize,
-            20, //logDriveLogSize,
-            //setupHash: HAS TO BE ADDED DIRECTLY IN test/CreeptsDApp.sol
-            0, //level,
-            100, //epochDuration,
-            150, //matchDuration,
-            25, //roundDuration,
-            1e13, //finalTime,
-            Step.address //machineAddress
-        );
-    });
-
 };

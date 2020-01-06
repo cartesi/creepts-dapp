@@ -64,7 +64,7 @@ WORKDIR /opt/cartesi
 
 # Copy the build artifacts from the build stage
 COPY --from=onchain $BASE/share/blockchain $BASE/share/blockchain
-COPY --from=build /usr/local/cargo/bin/creepts_dapp $BASE/bin/creepts
+COPY --from=build /usr/local/cargo/bin/dapp $BASE/bin/creepts
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 
 # Copy dispatcher scripts

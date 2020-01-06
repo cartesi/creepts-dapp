@@ -27,12 +27,12 @@
 #![recursion_limit = "1024"]
 #![warn(unused_extern_crates)]
 
-extern crate creepts_dapp;
+extern crate dapp;
 extern crate dispatcher;
 extern crate env_logger;
 extern crate utils;
 
-use creepts_dapp::CreeptsDApp;
+use dapp::DApp;
 use dispatcher::Dispatcher;
 use utils::print_error;
 
@@ -47,5 +47,5 @@ fn main() {
         }
     };
 
-    dispatcher.run::<CreeptsDApp>();
+    dispatcher.run::<DApp>();
 }
