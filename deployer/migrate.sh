@@ -20,3 +20,6 @@ cd node_modules/@cartesi/tournament && truffle migrate --network ${ETHEREUM_NETW
 
 echo "Deploying creepts"
 cd node_modules/@cartesi/creepts && truffle migrate --network ${ETHEREUM_NETWORK} && cd ../../..
+
+echo "Creating deploy_done file"
+touch deploy_done

@@ -14,7 +14,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-RUN yarn global add truffle@5.1.6
+RUN yarn global add truffle@5.1.7
 RUN yarn add @truffle/hdwallet-provider@1.0.28
 RUN yarn add @truffle/contract@4.1.3
 
@@ -37,5 +37,4 @@ CMD dockerize \
     -wait file://$BASE/share/blockchain/package.json \
     -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -timeout ${ETHEREUM_TIMEOUT} \
-    $BASE/deployer/migrate.sh \
-    && touch deploy_done
+    $BASE/deployer/migrate.sh
