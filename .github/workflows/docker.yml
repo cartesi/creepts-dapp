@@ -30,7 +30,7 @@ jobs:
         run: |
           docker build . --target onchain --cache-from cartesi/creepts:onchain -t cartesi/creepts:onchain --build-arg TAG=${TAG} --build-arg NPM_TOKEN=${NPM_TOKEN}
           docker build . --target build --cache-from cartesi/creepts:onchain --cache-from cartesi/creepts:build -t cartesi/creepts:build --build-arg TAG=${TAG} --build-arg NPM_TOKEN=${NPM_TOKEN}
-          docker build . --cache-from cartesi/creepts:onchain --cache-from cartesi/creepts:build --cache-from cartesi/creepts:latest -t cartesi/creepts:${TAG} --build-arg TAG=${TAG} --build-arg NPM_TOKEN=${NPM_TOKEN}
+          docker build . --target runtime --cache-from cartesi/creepts:onchain --cache-from cartesi/creepts:build --cache-from cartesi/creepts:latest -t cartesi/creepts:${TAG} --build-arg TAG=${TAG} --build-arg NPM_TOKEN=${NPM_TOKEN}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       

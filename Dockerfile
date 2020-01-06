@@ -41,7 +41,7 @@ COPY ./dapp/src ./src
 RUN cargo install -j $(nproc) --path .
 
 # Runtime image
-FROM debian:buster-slim
+FROM debian:buster-slim as runtime
 
 ENV BASE /opt/cartesi
 
@@ -72,3 +72,14 @@ ENV ETHEREUM_PORT "8545"
 ENV ETHEREUM_TIMEOUT "120s"
 
 ENTRYPOINT $BASE/bin/dispatcher-entrypoint.sh
+
+# Image for local testing
+FROM runtime as test
+
+# Overwrite @cartesi npm packages with local node_modules (useful for local development)
+COPY ./node_modules/@cartesi $BASE/share/blockchain/node_modules/@cartesi
+
+COPY ./contracts $BASE/share/blockchain/node_modules/@cartesi/creepts/contracts
+COPY ./migrations $BASE/share/blockchain/node_modules/@cartesi/creepts/migrations
+COPY ./build $BASE/share/blockchain/node_modules/@cartesi/creepts/build
+COPY ./truffle-config.js $BASE/share/blockchain/node_modules/@cartesi/creepts
