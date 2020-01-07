@@ -1,0 +1,6 @@
+{
+   "Post": {
+      "index": 0,
+      "payload": "{\"action\":\"commit\",\"params\":{\"hash\":\"LogHash\"}}"
+   }
+}
