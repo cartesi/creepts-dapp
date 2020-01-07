@@ -260,20 +260,10 @@ impl DAppTrait<()> for DApp {
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-fn mtdparts_string() -> String {
-    format!(
-        "mtdparts=flash.0-({});flash.1-({});flash.2-({});flash.3-({});flash.4-({});",
-        "root".to_string(),
-        "creepts".to_string(),
-        "log".to_string(),
-        "level".to_string(),
-        "output".to_string())
-}
-
 fn bootargs() -> String {
     format!(
         "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw {} -- /mnt/creepts/bin/verify",
-        mtdparts_string(),
+        "mtdparts=flash.0:-(root);flash.1:-(creepts);flash.2:-(log);flash.3:-(level);flash.4:-(output)",
     )
 }
 
@@ -401,6 +391,8 @@ fn build_machine(is_opponent: bool, index: U256, level: U256) -> Result<cartesi_
     machine.set_rom(rom_msg);
     machine.set_ram(ram_msg);
     machine.set_flash(protobuf::RepeatedField::from_vec(drives_msg));
+
+    trace!("Build machine for dapp (index {}, level {}) {:?}", index, level, machine);
 
     return Ok(machine);
 }
