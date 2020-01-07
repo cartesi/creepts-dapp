@@ -41,14 +41,14 @@ contract CreeptsDApp is Decorated, Instantiator {
 
     mapping(uint256 => CreeptsDAppCtx) internal instance;
     bytes32[8] setupHashes = [
-        bytes32(0x83a2b88934ac816c45e810b1c4344b214f88ccc7ecc9b5917cf6051b789974dd),
-        bytes32(0xdb886e23cce224acb75ae42bdebe44bbf07a3eca51a6629043d1e4e6518a42cb),
-        bytes32(0x425b43d06f55cce660a04bd4b605536f13fb6dab5072f5ce62f3527e02db8718),
-        bytes32(0xa236a1fc9b5c31ef0d02801c1f00cc84e1d8afd0433797e201b5044676a39108),
-        bytes32(0xa7700ff2f7e37ef8ade81d66926373688960812568485e4deecf02598b57e2b9),
-        bytes32(0x367d8064182ac7e32c33604cf1c77bbabea8c1810f9d3007414d1bdcfda11196),
-        bytes32(0xcd6bdaba99ef44c205ffa08f5c78d043d40a45ecd0ee54f94fb8865a3d6ddd37),
-        bytes32(0xbc221d51b0d9c024e0d2bb9067ad42907b17da6e916d20eab2d538561044db46)
+        bytes32(0xf9c235f4f0e2452bf9bb3ce229a4f79c5258a3618ee71bd77cd9caf3ef958be8),
+        bytes32(0xb0f71cf19d45f957abe0268bf4ecff2c6be958cea9c738b44e9e9b8b957a5b94),
+        bytes32(0xf62a857045aab2a0aa85511e8845b947bd2beb35ff1025f04f40b6840465f7dc),
+        bytes32(0x0fb737748f2b95b86f3fd78c831f49d2299026c4e89c272b2d328d0fd3fcdf75),
+        bytes32(0x2bb5d36961ba1f44b58f109ca5f8aca6d9bd9f9e1fc5a2f302940e2b451caf35),
+        bytes32(0x6564198bdfa1662f741b5368bcd017f3096b67b6b6708c6a00ed0e8a8f04331c),
+        bytes32(0xc1a06d41e1e9508c112546844149849d736498d6453a18e330f1e41063c80222),
+        bytes32(0x398fe6bb3c3892cddec597b4daa8fab01b5a71c74b2b3692f70476de15be9ed2)
     ];
 
     constructor(
