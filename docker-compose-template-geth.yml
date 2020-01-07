@@ -45,7 +45,7 @@ services:
       ETHEREUM_URL: http://geth:8545
       ETHEREUM_HOST: geth
       ETHEREUM_TIMEOUT: 240s
-      DOCKER: "true"
+      DOCKER: "TRUE"
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys

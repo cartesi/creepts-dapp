@@ -8,7 +8,6 @@ use super::ethabi::Token;
 use super::ethereum_types::U256;
 use super::transaction;
 use super::transaction::TransactionRequest;
-use super::tournament::{Payload, Params};
 
 pub struct CreeptsDApp();
 
@@ -43,7 +42,7 @@ impl DAppTrait<()> for CreeptsDApp {
     fn react(
         instance: &state::Instance,
         archive: &Archive,
-        _post_payload: &Option<String>,
+        post_payload: &Option<String>,
         _: &(),
     ) -> Result<Reaction> {
         // get context (state) of the compute instance
@@ -112,18 +111,8 @@ impl DAppTrait<()> for CreeptsDApp {
                     _ => {
                         // dapp is still active,
                         // pass control to the appropriate dapp
-                        let param = Params {
-                            hash: "fe7a808b870492a94337d0c3682a3030029d9f479a93c2b2d162f79638850d01".into()
-                        };
 
-                        let payload = Payload {
-                            action: "commit".into(),
-                            params: param
-                        };
-
-                        let payload_string = serde_json::to_string(&payload).unwrap();
-
-                        return DApp::react(dapp_instance, archive, &Some(payload_string), &());
+                        return DApp::react(dapp_instance, archive, post_payload, &());
                     }
                 }
             }

@@ -48,7 +48,7 @@ services:
 
       RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://ganache:8545
-      DOCKER: "true"
+      DOCKER: "TRUE"
     volumes:
       - onchain_data:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
