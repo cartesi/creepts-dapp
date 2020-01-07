@@ -39,4 +39,4 @@ jobs:
           docker push cartesi/creepts:onchain
           docker push cartesi/creepts:build
           docker push cartesi/creepts:${TAG}
-        if: github.ref == 'refs/branches/develop' || startsWith(github.ref, 'refs/tags/v')
+        if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v')
