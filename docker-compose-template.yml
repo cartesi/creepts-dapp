@@ -22,7 +22,7 @@ services:
       ETHEREUM_HOST: ganache
       ETHEREUM_NETWORK: ganache
     volumes:
-      - onchain_data:/opt/cartesi/share/blockchain
+      - ./:/opt/cartesi/share/blockchain
     networks:
       - ethereum
 
@@ -42,15 +42,13 @@ services:
   
 {% for i in range(players) %}
   dispatcher_{{ i }}:
-    # build: .
     image: cartesi/creepts
     environment:
-
       RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://ganache:8545
       DOCKER: "TRUE"
     volumes:
-      - onchain_data:/opt/cartesi/share/blockchain:ro
+      - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
@@ -61,7 +59,7 @@ services:
     image: cartesi/logger-server
     command: [ "-c", "/opt/cartesi/share/blockchain/node_modules/@cartesi/logger/build/contracts/Logger.json" ]
     volumes:
-      - onchain_data:/opt/cartesi/share/blockchain:ro
+      - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
@@ -105,7 +103,6 @@ services:
 
 volumes:
   ganache_data:
-  onchain_data:
   emulator_data:
   {% for i in range(players) %}dapp_data_{{ i }}:
   key_data_{{ i }}:

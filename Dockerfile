@@ -4,10 +4,15 @@ ENV BASE /opt/cartesi
 WORKDIR $BASE/share/blockchain
 
 ARG NPM_TOKEN
-ARG TAG=latest
-
 RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-RUN yarn add @cartesi/creepts@${TAG} --no-lockfile
+
+COPY ./contracts ./contracts
+COPY ./migrations ./migrations
+COPY ./package.json .
+COPY ./truffle-config.js .
+COPY ./yarn.lock .
+
+RUN yarn install --flat --production --frozen-lockfile
 
 FROM rust:1.38 as build
 
@@ -72,14 +77,3 @@ ENV ETHEREUM_PORT "8545"
 ENV ETHEREUM_TIMEOUT "120s"
 
 ENTRYPOINT $BASE/bin/dispatcher-entrypoint.sh
-
-# Image for local testing
-FROM runtime as test
-
-# Overwrite @cartesi npm packages with local node_modules (useful for local development)
-COPY ./node_modules/@cartesi $BASE/share/blockchain/node_modules/@cartesi
-
-COPY ./contracts $BASE/share/blockchain/node_modules/@cartesi/creepts/contracts
-COPY ./migrations $BASE/share/blockchain/node_modules/@cartesi/creepts/migrations
-COPY ./build $BASE/share/blockchain/node_modules/@cartesi/creepts/build
-COPY ./truffle-config.js $BASE/share/blockchain/node_modules/@cartesi/creepts
