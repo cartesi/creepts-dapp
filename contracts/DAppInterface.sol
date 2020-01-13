@@ -7,6 +7,13 @@ import "@cartesi/util/contracts/Instantiator.sol";
 
 contract DAppInterface is Instantiator {
 
+    enum state {
+        WaitingCommitAndReveal,
+        WaitingMatches,
+        DAppFinished
+    }
+
+
     function instantiate(
         address _rmAddress,
         address _mmAddress,

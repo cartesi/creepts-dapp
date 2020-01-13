@@ -11,12 +11,6 @@ import "./DAppInterface.sol";
 contract DApp is Decorated, DAppInterface {
     address public owner;
 
-    enum state {
-        WaitingCommitAndReveal, // TODO: split into two states: WaitingCommit and WaitingReveal
-        WaitingMatches,
-        DAppFinished
-    }
-
     struct DAppCtx {
         RevealInterface rm;
         MatchManagerInterface mm;
