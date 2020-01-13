@@ -128,7 +128,7 @@ contract CreeptsDApp is Decorated, Instantiator {
         }
     }
 
-    function isConcerned(uint256 _index, address _user) public view returns (bool) {
+    function isConcerned(uint256, address) public view returns (bool) {
         return true;
     }
 
