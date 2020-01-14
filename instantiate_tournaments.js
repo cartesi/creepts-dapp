@@ -11,7 +11,7 @@ module.exports = async (callback) => {
         const networkId = await web3.eth.net.getId();
         const accounts = await web3.eth.personal.getAccounts();
         const fromAddress = accounts[0];
-    
+
         const contracts = [
             MatchManagerInstantiator,
             RevealInstantiator,
@@ -23,7 +23,7 @@ module.exports = async (callback) => {
             contract.setProvider(web3.currentProvider);
             console.log(`${contract.contract_name} => ${contract.address}`);
         });
-    
+
         const commitDuration = 200;
         const scoreDriveLogSize = 3;
         const logDriveLogSize = 20;
@@ -31,7 +31,7 @@ module.exports = async (callback) => {
         const matchDuration = 90;
         const roundDuration = 45;
         const finalTime = 1e13;
-    
+
         var setupHashes = [
             "0x83a2b88934ac816c45e810b1c4344b214f88ccc7ecc9b5917cf6051b789974dd",
             "0xdb886e23cce224acb75ae42bdebe44bbf07a3eca51a6629043d1e4e6518a42cb",
@@ -42,12 +42,10 @@ module.exports = async (callback) => {
             "0xcd6bdaba99ef44c205ffa08f5c78d043d40a45ecd0ee54f94fb8865a3d6ddd37",
             "0xbc221d51b0d9c024e0d2bb9067ad42907b17da6e916d20eab2d538561044db4"
         ];
-    
+
         const dapp = await DApp.deployed();
         for (var i in setupHashes) {
             const hash = setupHashes[i];
-            console.log(`Creating tournament for level ${i} with setupHash ${hash}`);
-            console.log(dapp.instantiate);
             const transaction = await dapp.instantiate(
                 RevealInstantiator.address,
                 MatchManagerInstantiator.address,
