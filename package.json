@@ -20,14 +20,15 @@
   "homepage": "https://github.com/cartesi/creepts-dapp#readme",
   "dependencies": {
     "@cartesi/arbitration": "0.1.0-alpha.4",
+    "@cartesi/logger": "0.1.0-alpha.5",
     "@cartesi/machine-solidity-step": "0.1.0-alpha.4",
     "@cartesi/tournament": "0.1.0-alpha.9",
-    "@cartesi/logger": "0.1.0-alpha.5",
     "@cartesi/util": "0.1.1"
   },
   "devDependencies": {
     "@truffle/contract": "^4.1.3",
     "@truffle/hdwallet-provider": "^1.0.28",
+    "commander": "^4.1.0",
     "solidity-coverage": "^0.6.7",
     "truffle": "^5.1.7"
   },
