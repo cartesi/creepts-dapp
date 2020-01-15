@@ -4,8 +4,10 @@
 
 ### Requirements
 
-- docker
+- Docker
 - docker-compose
+- node 12.x
+- yarn
 - jinja2
 
 ### Cloning
@@ -23,12 +25,18 @@ git clone --recurse-submodules https://github.com/cartesi-corp/anuto-dapp.git
 
 To run execute:
 ```
-jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
+% docker build . -t cartesi/creepts
+% yarn
+% rm deploy_done
+% jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
 ```
 
 To run with `geth` instead of `ganache`:
 ```
-jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
+% docker build . -t cartesi/creepts
+% yarn
+% rm deploy_done
+% jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
 ```
 
 This environment is still using private assets, like:
