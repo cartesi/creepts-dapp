@@ -1,19 +1,3 @@
-FROM node:12-alpine as onchain
-
-ENV BASE /opt/cartesi
-WORKDIR $BASE/share/blockchain
-
-ARG NPM_TOKEN
-RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-
-COPY ./contracts ./contracts
-COPY ./migrations ./migrations
-COPY ./package.json .
-COPY ./truffle-config.js .
-COPY ./yarn.lock .
-
-RUN yarn install --flat --production --frozen-lockfile
-
 FROM rust:1.38 as build
 
 ENV BASE /opt/cartesi
@@ -63,7 +47,6 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 WORKDIR /opt/cartesi
 
 # Copy the build artifacts from the build stage
-COPY --from=onchain $BASE/share/blockchain $BASE/share/blockchain
 COPY --from=build /usr/local/cargo/bin/dapp $BASE/bin/creepts
 COPY --from=build /usr/local/cargo/bin/wagyu /usr/local/bin
 

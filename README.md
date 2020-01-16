@@ -95,5 +95,9 @@ This new tournament will be created in commit phase. To simulate a post of a log
 Committing log hash: fe7a808b870492a94337d0c3682a3030029d9f479a93c2b2d162f79638850d01 to dispatcher: localhost:3001...
 {"status":"ok"}
 Done!
-
 ```
+
+#### Running on Testnet
+
+% export MNEMONIC="<mnemonic>"
+% docker-compose up
