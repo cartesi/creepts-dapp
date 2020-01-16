@@ -56,6 +56,8 @@ services:
     networks:
       - ethereum
       - node_{{ i }}
+    ports:
+      - "{{ 3001 + i }}:3001"
 
   logger_{{ i }}:
     image: cartesi/logger-server
