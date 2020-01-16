@@ -37,7 +37,7 @@ services:
       {% endfor %}
 
   creepts_emulator:
-    image: cartesi/creepts-emulator
+    image: cartesi/creepts-emulator:0.1.0-rc0
     volumes:
       - emulator_data:/opt/cartesi/creepts
     entrypoint: ls -al
@@ -75,7 +75,7 @@ services:
           - logger
 
   machine_manager_{{ i }}:
-    image: cartesi/machine-manager
+    image: cartesi/machine-manager:0.1.0
     volumes:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
       - emulator_data:/opt/cartesi/srv/emulator-files
