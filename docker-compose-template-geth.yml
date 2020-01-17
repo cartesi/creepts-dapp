@@ -55,7 +55,7 @@ services:
       - node_{{ i }}
 
   logger_{{ i }}:
-    image: cartesi/logger-server
+    image: cartesi/logger-server:0.1.0
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
       - key_data_{{ i }}:/opt/cartesi/etc/keys
