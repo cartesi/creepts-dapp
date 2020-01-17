@@ -113,6 +113,7 @@ contract DApp is Decorated, DAppInterface {
 
         if (matchManagerState == "MatchesOver") {
             instance[_index].currentState = state.DAppFinished;
+            deactivate(_index);
         } else {
             revert("The subinstance matches is still active");
         }
