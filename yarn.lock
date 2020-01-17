@@ -9,35 +9,35 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@cartesi/arbitration@0.1.0-alpha.4", "@cartesi/arbitration@^0.1.0-alpha.4":
-  version "0.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@cartesi/arbitration/-/arbitration-0.1.0-alpha.4.tgz#93bb03d859a29f0863881a93d5ab27117daa2709"
-  integrity sha512-2rhwE04SSgA2P1ToQxC+Vk/lSI7SFRXqYYVtUT6c7UEbgWkMPp3thkb1zagKlvAujCTkEYkV9+t6ImQ5jSFntw==
+"@cartesi/arbitration@0.1.0", "@cartesi/arbitration@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@cartesi/arbitration/-/arbitration-0.1.0.tgz#5003876ae4b71007cbee7c4f7873fb99d283f48e"
+  integrity sha512-Hjg/r/5vzoug/RHmXqGKD6a6e1vSxjiR+0n8zqiPFnS6I5Fj+kJtUp+z9CJmw0UAg9N6ewZm9LJxmymPGMLP0g==
   dependencies:
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/logger@0.1.0-alpha.5", "@cartesi/logger@^0.1.0-alpha.5":
-  version "0.1.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/@cartesi/logger/-/logger-0.1.0-alpha.5.tgz#3526aed0e2941079df1b31b8aab8d7775ce743d9"
-  integrity sha512-yI/wVlVGwH0F43RpKNg1alvXmr2VrPt9bInkbwo8k/wgnvnJOGrZ4ncJIXIDAZOJT9dwOBSfe8zwHo6UZx7bLg==
+"@cartesi/logger@0.1.0", "@cartesi/logger@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@cartesi/logger/-/logger-0.1.0.tgz#37211815d11224e68880614e936e3cd901df102a"
+  integrity sha512-2Q7EAgtAawdu5GUFkmwbRxTLRo9wMTOYcOqaRiknMzIf2Nq7CFmIr8S2hbNMwCwdX5XRUBzebxGQpsi+O2aeNg==
   dependencies:
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/machine-solidity-step@0.1.0-alpha.4":
-  version "0.1.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@cartesi/machine-solidity-step/-/machine-solidity-step-0.1.0-alpha.4.tgz#73a1bda646604458a816d9e14d7ff85ef0b7555c"
-  integrity sha512-2OH7NXMq2STJYwZszjz7RwembBnHqJPa1/qxnD1lmPtzlCwkKT1AUliuDtJ8HXT20ZmuXaARQu0dwzQrkFGRIg==
+"@cartesi/machine-solidity-step@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@cartesi/machine-solidity-step/-/machine-solidity-step-0.1.0.tgz#84c099e2777eb1a245eca56449acf621d62cf435"
+  integrity sha512-lNaQHChLYnYMJo+P1XgsKF5ZrGSKLzjXplsI1ksgks/S8ji98BNqW73HxJAYl32ECnLpLnNSK+TN3qG2fIVk7g==
   dependencies:
-    "@cartesi/arbitration" "^0.1.0-alpha.4"
+    "@cartesi/arbitration" "^0.1.0"
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/tournament@0.1.0-alpha.9":
-  version "0.1.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.0-alpha.9.tgz#40e84dc272d23d3478dcd3a94ab0c6e2723e7902"
-  integrity sha512-vWeOfYQOw7khb1vwUBcWLiLMbCqBs/hJzPZdLc2+S4o3mztoTK+3V9EBHgiy7930u26PRiax5ALh8KQCckreIQ==
+"@cartesi/tournament@0.1.0-alpha.10":
+  version "0.1.0-alpha.10"
+  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.0-alpha.10.tgz#52c4d58aed431dda03ffcef7ebbb1b255d7c6a55"
+  integrity sha512-ivpOQf+yNxBH2FJKOSJZ8OD+2hs+GNPWCSfILagkNXLX+hm6spjg9O13A9qRyMrus40PD/V8Cry/HeDOQt4QQQ==
   dependencies:
-    "@cartesi/arbitration" "^0.1.0-alpha.4"
-    "@cartesi/logger" "^0.1.0-alpha.5"
+    "@cartesi/arbitration" "^0.1.0"
+    "@cartesi/logger" "^0.1.0"
     "@cartesi/util" "^0.1.1"
 
 "@cartesi/util@0.1.1", "@cartesi/util@^0.1.1":
@@ -62,24 +62,24 @@
   resolved "https://registry.yarnpkg.com/@truffle/blockchain-utils/-/blockchain-utils-0.0.17.tgz#a1ab0ec9a9c3cbc6ada769f606d6b07f8e515120"
   integrity sha512-SqvkHCn65QbRFlNpA3M91tqcV8dVMSEfOu3lfXrPozKJyTTtFg/A8WMvMMs79/Q8SJlUuJARjsXwQmo5V3V78A==
 
-"@truffle/contract-schema@^3.0.20":
-  version "3.0.20"
-  resolved "https://registry.yarnpkg.com/@truffle/contract-schema/-/contract-schema-3.0.20.tgz#487215aad795a4c589a521322b8f0bb505b8a25f"
-  integrity sha512-n4Q+EJWyovUdsd9+XCSzjsHilIXveozIMAJ127yqG2ihAfnqbFdLC98YFSkJiXg4SZZQNKZzZzLDEctz8Ik9Ag==
+"@truffle/contract-schema@^3.0.21":
+  version "3.0.21"
+  resolved "https://registry.yarnpkg.com/@truffle/contract-schema/-/contract-schema-3.0.21.tgz#dea39e948198e0aa4dd06fe097348f61c1e49809"
+  integrity sha512-u+qgdeZ3YaCa/t+2xjXoxYXlll5ptonLJDGUX9q/h55EvEYYgfNpoVYUCIyaNiTee1nBe+/RxWLcpcsW7ZJJVA==
   dependencies:
     ajv "^6.10.0"
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
-"@truffle/contract@^4.1.3":
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/@truffle/contract/-/contract-4.1.3.tgz#2a1a5197158b1e40874aa237d49d2e6c73e7b641"
-  integrity sha512-F/XnKX33NaRW+EDycawbYrsGL9Kn1bFrWvfQUZPNBShqd3d1eFLC6ZPFRnMScqj0J68nYDMSi1gHKcHgUYJRiA==
+"@truffle/contract@^4.1.4":
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/@truffle/contract/-/contract-4.1.5.tgz#c0fd43f770bf28fb9034f7bb7992580db474267c"
+  integrity sha512-aHEXDHoRqSvqMOCGLp5p9PxO10KuxFpqeYJFcJ76c3P4pjGRNP9pPDoLGVsK9yCveHFvxY7tw5JwTd8PJKyMhg==
   dependencies:
     "@truffle/blockchain-utils" "^0.0.17"
-    "@truffle/contract-schema" "^3.0.20"
+    "@truffle/contract-schema" "^3.0.21"
     "@truffle/error" "^0.0.8"
-    "@truffle/interface-adapter" "^0.4.2"
+    "@truffle/interface-adapter" "^0.4.3"
     bignumber.js "^7.2.1"
     ethereum-ens "^0.7.7"
     ethers "^4.0.0-beta.1"
@@ -108,10 +108,10 @@
     web3 "1.2.1"
     web3-provider-engine "https://github.com/trufflesuite/provider-engine#web3-one"
 
-"@truffle/interface-adapter@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@truffle/interface-adapter/-/interface-adapter-0.4.2.tgz#20343505240d4fdb4b071d30c2c46d894329eb56"
-  integrity sha512-NyHGq8DFWLJvxzz0EQlHw33hwmBIGJMN7R0dPmyVPTtVw3PfHeNJ/D4IRHAhgeV+LMZhwd8iLUpvHl6C6b4wUA==
+"@truffle/interface-adapter@^0.4.3":
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@truffle/interface-adapter/-/interface-adapter-0.4.3.tgz#808068a7f365df0ff63573afd3af9e441b746ed4"
+  integrity sha512-O9S5UJRlGhjV0np3eJB5MCAa79MlGoSM7sFfNl/W2BermZhQRgIW+7Vhb3G/dmElYS0g55EApgByYQtPF5FfXA==
   dependencies:
     bn.js "^4.11.8"
     ethers "^4.0.32"
@@ -5486,10 +5486,10 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha1-yy4SAwZ+DI3h9hQJS5/kVwTqYAM=
 
-truffle@^5.1.7:
-  version "5.1.7"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.7.tgz#d1e4645e2da889920e4bc63fd1139192ec6ccc2d"
-  integrity sha512-caVeXdNLO/3ve5Iua0cGIb0YKcXMdKdWOuqHBkFVMMWz66jABNBgtspQRtIvmXxTcU9APTUrbPOz7VM+Tht3yw==
+truffle@^5.1.8:
+  version "5.1.9"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.9.tgz#457bfa71af8eb0098fa551e2591e53dbca0dbe29"
+  integrity sha512-iVEFOqeakcC6tZHDN0j8DU23uR0tM6hpgd1D33NRVNR98UrhnNA99Vy9+wiy9XEBXWycjgcBiRvMO9pWNg0aZg==
   dependencies:
     app-module-path "^2.2.0"
     mocha "5.2.0"
