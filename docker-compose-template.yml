@@ -54,8 +54,10 @@ services:
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
-      - ethereum
-      - node_{{ i }}
+      ethereum: {}
+      node_{{ i }}:
+        aliases:
+          - dispatcher
     ports:
       - "{{ 3001 + i }}:3001"
 
@@ -85,17 +87,25 @@ services:
         aliases:
           - machine-manager
 
-  anuto_server_{{ i }}:
-    image: cartesi/anuto-server:develop-f4103222
+  backend_{{ i }}:
+    image: cartesi/creepts-backend
     volumes:
+      - ./:/opt/cartesi/share/blockchain:ro
+      - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+    environment:
+      WEB3_PROVIDER_URI: http://ganache:8545
+      LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts
+    ports:
+      - "{{ 8000 + i }}:8000"
     networks:
+      ethereum: {}
       node_{{ i }}:
         aliases:
           - anuto-server
 
   web_{{ i }}:
-    depends_on: [anuto_server_{{ i }}]
+    depends_on: [backend_{{ i }}]
     image: cartesi/creepts-web
     environment:
       REACT_APP_API_URL: /api
