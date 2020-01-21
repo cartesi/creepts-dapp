@@ -45,13 +45,19 @@ services:
       - ./dapp_data:/opt/cartesi/srv/creepts
       - emulator_data:/opt/cartesi/srv/emulator-files
   
-  anuto-server:
-    image: cartesi/anuto-server:develop-f4103222
+  backend:
+    image: cartesi/creepts-backend
     volumes:
       - ./dapp_data:/opt/cartesi/srv/creepts
+      - onchain_data:/opt/cartesi/share/blockchain
+    environment:
+      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/v3/93b4e1af3e524cf5979ca45262b4d81b
+      LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts
+      NETWORK_ID: 4
+      MNEMONIC: "${MNEMONIC}"
   
   web:
-    depends_on: [anuto-server]
+    depends_on: [backend]
     image: cartesi/creepts-web
     environment:
       REACT_APP_API_URL: /api
