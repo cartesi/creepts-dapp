@@ -46,7 +46,7 @@ services:
   dispatcher_{{ i }}:
     image: cartesi/creepts
     environment:
-      RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
+      RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://ganache:8545
       DOCKER: "TRUE"
     volumes:
