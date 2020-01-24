@@ -37,7 +37,7 @@ services:
       {% endfor %}
 
   creepts_emulator:
-    image: cartesi/creepts-emulator:0.1.0-rc0
+    image: cartesi/creepts-emulator:0.1.0-rc1
     volumes:
       - emulator_data:/opt/cartesi/creepts
     entrypoint: ls -al
