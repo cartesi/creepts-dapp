@@ -145,6 +145,28 @@ impl DAppTrait<()> for DApp {
                 );
             }
             "WaitingMatches" => {
+                // we inspect the reveal contract to see if player completed it
+                let reveal_instance = instance.sub_instances.get(0).ok_or(Error::from(
+                    ErrorKind::InvalidContractState(format!(
+                        "There is no reveal instance {}",
+                        ctx.current_state
+                    )),
+                ))?;
+
+                let reveal_parsed: RevealCommitCtxParsed =
+                    serde_json::from_str(&reveal_instance.json_data).chain_err(|| {
+                        format!(
+                            "Could not parse reveal instance json_data: {}",
+                            &reveal_instance.json_data
+                        )
+                    })?;
+                let reveal_ctx: RevealCommitCtx = reveal_parsed.into();
+
+                // if player hasnt revealed, he cannot play this tournament anymore
+                if !reveal_ctx.has_revealed {
+                    return Ok(Reaction::Idle);
+                }
+
                 // we inspect the match manager contract
                 let match_manager_instance = instance.sub_instances.get(1).ok_or(Error::from(
                     ErrorKind::InvalidContractState(format!(
@@ -161,7 +183,7 @@ impl DAppTrait<()> for DApp {
                     )
                 })?;
                 let match_manager_ctx: MatchManagerCtx = match_manager_parsed.into();
-                
+
                 if match_manager_ctx.current_state == "MatchesOver" {
                     let request = TransactionRequest {
                         concern: instance.concern.clone(),
