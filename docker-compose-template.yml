@@ -95,14 +95,14 @@ services:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     environment:
       WEB3_PROVIDER_URI: http://ganache:8545
-      LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts
+      LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
     ports:
       - "{{ 8000 + i }}:8000"
     networks:
       ethereum: {}
       node_{{ i }}:
         aliases:
-          - anuto-server
+          - backend
 
   web_{{ i }}:
     depends_on: [backend_{{ i }}]
