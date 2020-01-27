@@ -99,5 +99,17 @@ Done!
 
 #### Running on Testnet
 
+Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan` and `rinkeby`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, and run it using the following commands:
+
+```
 % export MNEMONIC="<mnemonic>"
 % docker-compose up
+```
+
+You don't need a ethereum node, by running the above commands you will be using a shared Infura node provided by Cartesi. This may change in the future.
+
+If you want to deploy your own contracts you can build a docker image by doing the following command:
+
+```
+docker build . -t cartesi/creepts-onchain -f Dockerfile.onchain --build-arg MNEMONIC="<mnemonic>" --build-arg PROJECT_ID=<infura_project_id>
+````
