@@ -22,7 +22,7 @@
     "@cartesi/arbitration": "0.1.0",
     "@cartesi/logger": "0.1.0",
     "@cartesi/machine-solidity-step": "0.1.0",
-    "@cartesi/tournament": "0.1.0-alpha.10",
+    "@cartesi/tournament": "0.1.0-alpha.11",
     "@cartesi/util": "0.1.1"
   },
   "devDependencies": {
