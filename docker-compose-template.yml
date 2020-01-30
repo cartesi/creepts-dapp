@@ -96,6 +96,7 @@ services:
     environment:
       WEB3_PROVIDER_URI: http://ganache:8545
       LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
+      CONTRACTS_DIR: /opt/cartesi/share/blockchain
     ports:
       - "{{ 8000 + i }}:8000"
     networks:

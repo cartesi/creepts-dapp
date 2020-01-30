@@ -53,6 +53,7 @@ services:
     environment:
       WEB3_PROVIDER_URI: wss://rinkeby.infura.io/ws/v3/93b4e1af3e524cf5979ca45262b4d81b
       LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts
+      CONTRACTS_DIR: /opt/cartesi/share/blockchain
       NETWORK_ID: 4
       MNEMONIC: "${MNEMONIC}"
   
