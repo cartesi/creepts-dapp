@@ -14,11 +14,11 @@
 
 Make sure to include the submodules:
 ```
-git clone --recurse-submodules ssh://github.com/cartesi-corp/anuto-dapp.git
+git clone --recurse-submodules ssh://github.com/cartesi/creepts-dapp.git
 ```
 or using the http address:
 ```
-git clone --recurse-submodules https://github.com/cartesi-corp/anuto-dapp.git
+git clone --recurse-submodules https://github.com/cartesi/creepts-dapp.git
 ```
 
 ### Running
@@ -43,7 +43,7 @@ This environment is still using private assets, like:
 
 * private docker images from Docker Hub
 * private NPM package from `https://npmjs.com`
-* private assets from GitHub releases at `cartesi-corp`
+* private assets from GitHub releases
 
 So you need to:
 
