@@ -18,13 +18,13 @@ contract DAppInterface is Instantiator {
         address _rmAddress,
         address _mmAddress,
         uint256 _commitDuration,
+        uint256 _revealDuration,
         uint256 _scoreDriveLogSize,
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
         uint256 _level,
 
         // MatchManager params
-        uint256 _epochDuration,
         uint256 _matchDuration,
         uint256 _roundDuration,
         uint256 _finalTime,

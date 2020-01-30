@@ -20,7 +20,6 @@ contract DApp is Decorated, DAppInterface {
         uint256 level; // map level
 
         // MatchManager params
-        uint256 epochDuration;
         uint256 matchDuration;
         uint256 roundDuration;
         uint256 finalTime;
@@ -42,13 +41,13 @@ contract DApp is Decorated, DAppInterface {
         address _rmAddress,
         address _mmAddress,
         uint256 _commitDuration,
+        uint256 _revealDuration,
         uint256 _scoreDriveLogSize,
         uint256 _logDriveLogSize,
         bytes32 _setupHash,
         uint256 _level,
 
         // MatchManager params
-        uint256 _epochDuration,
         uint256 _matchDuration,
         uint256 _roundDuration,
         uint256 _finalTime,
@@ -61,7 +60,6 @@ contract DApp is Decorated, DAppInterface {
         instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].level = _level;
 
-        instance[currentIndex].epochDuration = _epochDuration;
         instance[currentIndex].matchDuration = _matchDuration;
         instance[currentIndex].roundDuration = _roundDuration;
         instance[currentIndex].finalTime = _finalTime;
@@ -72,6 +70,7 @@ contract DApp is Decorated, DAppInterface {
         instance[currentIndex].currentState = state.WaitingCommitAndReveal;
         instance[currentIndex].revealIndex = instance[currentIndex].rm.instantiate(
             _commitDuration,
+            _revealDuration,
             (1<<63)+(3<<61), //scoreWordPosition,
             (1<<63)+(2<<61), //logDrivePosition,
             _scoreDriveLogSize,
@@ -92,7 +91,6 @@ contract DApp is Decorated, DAppInterface {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
-                instance[_index].epochDuration,
                 instance[_index].matchDuration,
                 instance[_index].roundDuration,
                 instance[_index].finalTime,
