@@ -112,6 +112,7 @@ impl DAppTrait<()> for DApp {
                 let reveal_ctx: RevealCommitCtx = reveal_parsed.into();
 
                 if reveal_ctx.current_state == "CommitRevealDone" {
+                    info!("Claiming Match phase for DApp (index: {})", instance.index);
                     let request = TransactionRequest {
                         concern: instance.concern.clone(),
                         value: U256::from(0),
@@ -185,6 +186,7 @@ impl DAppTrait<()> for DApp {
                 let match_manager_ctx: MatchManagerCtx = match_manager_parsed.into();
 
                 if match_manager_ctx.current_state == "MatchesOver" {
+                    info!("Claiming Finish phase for DApp (index: {})", instance.index);
                     let request = TransactionRequest {
                         concern: instance.concern.clone(),
                         value: U256::from(0),
