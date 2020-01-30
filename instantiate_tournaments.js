@@ -18,7 +18,7 @@ program
     .option('-c, --compile', 'Compile contracts before executing the script')
     .option('-l, --level <level>', 'Level number [0-7]', 0)
     .option('--commit-duration <duration>', 'Duration in seconds of commit phase', 200)
-    .option('--epoch-duration <duration>', 'Duration in seconds of epoch phase', 200)
+    .option('--reveal-duration <duration>', 'Duration in seconds of reveal phase', 200)
     .option('--match-duration <duration>', 'Duration in seconds of match phase', 90)
     .option('--round-duration <duration>', 'Duration in seconds of round phase', 45);
 
@@ -45,7 +45,7 @@ module.exports = async (callback) => {
         });
 
         const commitDuration = program.commitDuration;
-        const epochDuration = program.epochDuration;
+        const revealDuration = program.revealDuration;
         const matchDuration = program.matchDuration;
         const roundDuration = program.roundDuration;
         const scoreDriveLogSize = 3;
@@ -69,11 +69,11 @@ module.exports = async (callback) => {
             RevealInstantiator.address,
             MatchManagerInstantiator.address,
             commitDuration,
+            revealDuration,
             scoreDriveLogSize,
             logDriveLogSize,
             hash,
             program.level,
-            epochDuration,
             matchDuration,
             roundDuration,
             finalTime,
