@@ -67,7 +67,7 @@ This will run an environment connected to a private net (ganache or geth), with 
 To deploy a new tournament you need to run the `instantiate_tournament.js` truffle script. To do this you need to have `truffle` installed, and run:
 
 ```
-% truffle exec instantiate_tournaments.js --network development --level 0 --commit-duration 200 --epoch-duration 200 --match-duration 90 --round-duration 45
+% truffle exec instantiate_tournaments.js --network development --level 0 --commit-duration 50 --reveal-duration 200 --match-duration 100 --round-duration 50
 
     -l, --level <level>: Level number [0-7]
     --commit-duration <duration>: Duration in seconds of commit phase
