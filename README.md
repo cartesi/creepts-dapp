@@ -39,20 +39,6 @@ To run with `geth` instead of `ganache`:
 % jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
 ```
 
-This environment is still using private assets, like:
-
-* private docker images from Docker Hub
-* private NPM package from `https://npmjs.com`
-* private assets from GitHub releases
-
-So you need to:
-
-* Do a [docker login](https://docs.docker.com/engine/reference/commandline/login/) before launching the environment
-* [Create a NPM token](https://docs.npmjs.com/creating-and-viewing-authentication-tokens) and specifying it in the command line above
-* [Create a GitHub personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) and specify it in the command line above
-
-Once we create a public release of the application we won't need this anymore.
-
 To shutdown:
 ```
 % jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - down -v
@@ -113,3 +99,15 @@ If you want to deploy your own contracts you can build a docker image by doing t
 ```
 docker build . -t cartesi/creepts-onchain -f Dockerfile.onchain --build-arg MNEMONIC="<mnemonic>" --build-arg PROJECT_ID=<infura_project_id>
 ````
+
+## Contributing
+
+Thank you for your interest in Cartesi! Head over to our [Contributing Guidelines](CONTRIBUTING.md) for instructions on how to sign our Contributors Agreement and get started with Cartesi!
+
+Please note we have a [Code of Conduct](CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
+
+## License
+
+Note: This component currently has dependencies that are licensed under the GNU GPL, version 3, and so you should treat this component as a whole as being under the GPL version 3. But all Cartesi-written code in this component is licensed under the Apache License, version 2, or a compatible permissive license, and can be used independently under the Apache v2 license. After this component is rewritten, the entire component will be released under the Apache v2 license.
+The arbitration d-lib repository and all contributions are licensed under
+[GPL 3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please review our [COPYING](COPYING) file.
