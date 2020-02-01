@@ -1,7 +1,7 @@
 version: '3'
 services:
   creepts-emulator:
-    image: cartesi/creepts-emulator
+    image: cartesi/creepts-emulator:0.1.0
     volumes:
       - emulator_data:/opt/cartesi/creepts
     entrypoint: ls -al
@@ -59,7 +59,7 @@ services:
   
   web:
     depends_on: [backend]
-    image: cartesi/creepts-web
+    image: cartesi/creepts-web:0.1.0
     environment:
       REACT_APP_API_URL: /api
     ports:
