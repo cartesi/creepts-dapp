@@ -28,7 +28,7 @@ services:
       - onchain_data:/opt/cartesi/share/blockchain
 
   logger:
-    image: cartesi/logger-server:0.1.0
+    image: cartesi/logger-server:0.1.1
     depends_on: [creepts-onchain]
     volumes:
       - ./dapp_data:/opt/cartesi/srv/logger-server
