@@ -46,7 +46,7 @@ services:
       - emulator_data:/opt/cartesi/srv/emulator-files
   
   backend:
-    image: cartesi/creepts-backend
+    image: cartesi/creepts-backend:0.1.0
     volumes:
       - ./dapp_data:/opt/cartesi/srv/creepts
       - onchain_data:/opt/cartesi/share/blockchain
