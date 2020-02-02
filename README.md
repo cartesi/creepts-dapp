@@ -83,6 +83,8 @@ Committing log hash: fe7a808b870492a94337d0c3682a3030029d9f479a93c2b2d162f796388
 Done!
 ```
 
+After the environment is running, open http://localhost:8090 to open the game UI.
+
 #### Running on Testnet
 
 Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan` and `rinkeby`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, and run it using the following commands:
@@ -91,6 +93,8 @@ Cartesi will provided a docker image called `cartesi/creepts-onchain` with refer
 % export MNEMONIC="<mnemonic>"
 % docker-compose up
 ```
+
+Then open a brower at http://localhost:8090
 
 You don't need a ethereum node, by running the above commands you will be using a shared Infura node provided by Cartesi. This may change in the future.
 
