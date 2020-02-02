@@ -6,6 +6,8 @@ services:
     command: [ "--rpcvhosts=*", "--rpc", "--rpcaddr", "0.0.0.0", "--rpcport", "8545", "--nodiscover", "--mine", "--networkid", "15", "--rpcapi", "eth,net,web3,personal", "--allow-insecure-unlock" ]
     expose:
       - 8545
+    ports:
+      - 8545:8545
     volumes:
       {% for i in range(players) %}- key_data_{{ i }}:/key-{{ i }}
       {% endfor %}
@@ -24,40 +26,43 @@ services:
       ETHEREUM_NETWORK: geth
       ETHEREUM_TIMEOUT: 60s
     volumes:
-      - truffle_data:/usr/src/app/build
+      - ./:/opt/cartesi/share/blockchain
     networks:
       - ethereum
 
-#  emulator_setup:
-#    build: emulator_setup
-#    volumes:
-#      - emulator_data:/root/host
-#    environment:
-#      GITHUB_TOKEN: ${GITHUB_TOKEN}
+  creepts_emulator:
+    image: cartesi/creepts-emulator:0.1.0
+    volumes:
+      - emulator_data:/opt/cartesi/creepts
+    entrypoint: ls -al
 
 {% for i in range(players) %}
   dispatcher_{{ i }}:
     # build: .
     image: cartesi/creepts
     environment:
-
-      RUST_LOG: dispatcher=trace,transaction=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
+      RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://geth:8545
       ETHEREUM_HOST: geth
       ETHEREUM_TIMEOUT: 240s
       DOCKER: "TRUE"
     volumes:
-      - truffle_data:/opt/cartesi/share/blockchain
+      - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     networks:
-      - ethereum
-      - node_{{ i }}
-
+      ethereum: {}
+      node_{{ i }}:
+        aliases:
+          - dispatcher
+    ports:
+      - "{{ 3001 + i }}:3001"
+  
   logger_{{ i }}:
     image: cartesi/logger-server:0.1.1
+    command: [ "-c", "/opt/cartesi/share/blockchain/node_modules/@cartesi/logger/build/contracts/Logger.json" ]
     volumes:
-      - truffle_data:/opt/cartesi/share/blockchain
+      - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
@@ -69,28 +74,36 @@ services:
           - logger
 
   machine_manager_{{ i }}:
-    image: cartesi/machine-manager
+    image: cartesi/machine-manager:0.1.0
     volumes:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
-      - ./emulator_data:/opt/cartesi/srv/emulator-files
+      - emulator_data:/opt/cartesi/srv/emulator-files
     networks:
       ethereum: {}
       node_{{ i }}:
         aliases:
           - machine-manager
 
-  anuto_server_{{ i }}:
-    image: cartesi/anuto-server:develop-f4103222
+  backend_{{ i }}:
+    image: cartesi/creepts-backend:0.1.0
     volumes:
+      - ./:/opt/cartesi/share/blockchain:ro
+      - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
+    environment:
+      WEB3_PROVIDER_URI: http://geth:8545
+      LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
+      CONTRACTS_DIR: /opt/cartesi/share/blockchain
+    ports:
+      - "{{ 8000 + i }}:8000"
     networks:
       node_{{ i }}:
         aliases:
-          - anuto-server
+          - backend
 
   web_{{ i }}:
-    depends_on: [anuto_server_{{ i }}]
-    image: cartesi/creepts-web
+    depends_on: [backend_{{ i }}]
+    image: cartesi/creepts-web:0.1.0
     environment:
       REACT_APP_API_URL: /api
     ports:
