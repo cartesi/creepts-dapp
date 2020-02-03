@@ -28,7 +28,7 @@ To run execute:
 % docker build . -t cartesi/creepts
 % yarn
 % rm deploy_done
-% jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
+% jinja2 -D num_players=2 docker-compose-template.yml | docker-compose -f - up --build
 ```
 
 To run with `geth` instead of `ganache`:
@@ -36,12 +36,12 @@ To run with `geth` instead of `ganache`:
 % docker build . -t cartesi/creepts
 % yarn
 % rm deploy_done
-% jinja2 -D num_players=2 docker-compose-template-geth.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - up --build
+% jinja2 -D num_players=2 docker-compose-template-geth.yml | docker-compose -f - up --build
 ```
 
 To shutdown:
 ```
-% jinja2 -D num_players=2 docker-compose-template.yml | NPM_TOKEN=<npm_token> GITHUB_TOKEN=<github_token> docker-compose -f - down -v
+% jinja2 -D num_players=2 docker-compose-template.yml | docker-compose -f - down -v
 ```
 
 You can follow the output of a docker instance with:
