@@ -39,7 +39,7 @@ services:
 {% for i in range(players) %}
   dispatcher_{{ i }}:
     # build: .
-    image: cartesi/creepts
+    image: cartesi/creepts:0.1.0
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,compute=trace,tournament=trace,creepts_dapp=trace
       ETHEREUM_URL: http://geth:8545

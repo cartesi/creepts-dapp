@@ -7,12 +7,12 @@ services:
     entrypoint: ls -al
 
   creepts-onchain:
-    image: cartesi/creepts-onchain
+    image: cartesi/creepts-onchain:0.1.0
     volumes:
       - onchain_data:/opt/cartesi/share/blockchain
 
   dispatcher:
-    image: cartesi/creepts
+    image: cartesi/creepts:0.1.0
     depends_on: [creepts-onchain]
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,transport=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
