@@ -17,6 +17,7 @@ program
     .option('-n, --network <network>', 'Specify the network to use, using artifacts specific to that network. Network name must exist in the configuration')
     .option('-c, --compile', 'Compile contracts before executing the script')
     .option('-l, --level <level>', 'Level number [0-7]', 0)
+    .option('-a, --account <account>', 'Account sender of transaction')
     .option('--commit-duration <duration>', 'Duration in seconds of commit phase', 200)
     .option('--reveal-duration <duration>', 'Duration in seconds of reveal phase', 200)
     .option('--match-duration <duration>', 'Duration in seconds of match phase', 90)
@@ -29,8 +30,14 @@ module.exports = async (callback) => {
 
     try {
         const networkId = await web3.eth.net.getId();
-        const accounts = await web3.eth.personal.getAccounts();
-        const fromAddress = accounts[0];
+        
+        let fromAddress = undefined;
+        if (program.account) {
+            fromAddress = program.account;
+        } else {
+            const accounts = await web3.eth.personal.getAccounts();
+            fromAddress = accounts[0];
+        }
 
         const contracts = [
             MatchManagerInstantiator,
