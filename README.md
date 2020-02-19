@@ -98,6 +98,12 @@ Then open a brower at http://localhost:8090
 
 You don't need a ethereum node, by running the above commands you will be using a shared Infura node provided by Cartesi. This may change in the future.
 
+In order to shutdown the environment hit CTRL-C to detach and bring the containers down using the command below. Keep in mind that in order to defend your score against your opponents you should keep your node running until the end of the tournament.
+
+```
+% docker-compose down -v
+```
+
 If you want to deploy your own contracts you can build a docker image by doing the following command:
 
 ```
