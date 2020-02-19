@@ -85,7 +85,7 @@ services:
           - machine-manager
 
   backend_{{ i }}:
-    image: cartesi/creepts-backend:0.1.1
+    image: cartesi/creepts-backend:0.1.2
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
