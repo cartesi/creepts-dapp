@@ -60,14 +60,14 @@ module.exports = async (callback) => {
         const finalTime = 1e13;
 
         const setupHashes = [
-            "0x3ef7d168aa4ae54ae166e1b857b9d46eec9d568d05d305c0101879963c734d25",
-            "0xddffddc238e4862eb41196525cd7e61275dfc32c98c769f8d45ed62439cb0d17",
-            "0xf7e089a1849dc1f06f35e9c6b37a8f71eaa9082abe729e24ac653127bf454370",
-            "0x4657d5d1c2d2af542dc538d6f69f0674d40dfa340e26f67dc49428b795a5b7ce",
-            "0x5096bf3c0d5d2257aeddaa4620d6b23aff381aa2fc26e5a83751a4443f6eee2c",
-            "0x01975e53074454076a37baca511eccff3d3bb06c1a43b2cd46f8cebb3ab0fc91",
-            "0x9179c6d12af099e5b53816b500692b1d55c85f22942c5d0b2e3e879ed0e548a5",
-            "0x9a5d4f2745e18df93eeb3ecaf613cf728f84ad2d34a4b822ed6664e24925a6c9"
+            "0x82920eb4317138b39b9d9333f7a768dbb24db7252e95400818e501fe6a2159c5",
+            "0xb25482f3386492228e7e165391b5b9742e477d2e26dfd06b0958cdefd2764b66",
+            "0x2afeff8cadb329da36f4c27feb1c7e8d14903bc3df730fc76c921ca42a76d7cf",
+            "0xe7977082975a46000d7ab9de0dfe61363d86e36096e08d1970f0d60e063f3f31",
+            "0x674788b3b9cad820af63ea18c266abdad02d580da3068d5caa3b550c3fa6681b",
+            "0xcb9d832a375b70123450a511534d49e39f7d88f59fe04287790fc13b86baa1ab",
+            "0x05bc18e7afb2cdac48b8433e63e1df95f2a7571cd06f9b30e669b06d1bbfbd8e",
+            "0xeea5ae314cb94f2d0def960a867358c94fc277d63892a6da688c409bba356fc5"
         ];
 
         const dapp = await DApp.deployed();
