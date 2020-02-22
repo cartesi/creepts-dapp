@@ -85,7 +85,7 @@ services:
           - machine-manager
 
   backend_{{ i }}:
-    image: cartesi/creepts-backend:0.1.2
+    image: cartesi/creepts-backend:0.1.3
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
@@ -93,6 +93,7 @@ services:
     environment:
       WEB3_PROVIDER_URI: http://geth:8545
       LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
+      DB_NAME: /opt/cartesi/srv/creepts/creepts.db
       CONTRACTS_DIR: /opt/cartesi/share/blockchain
     ports:
       - "{{ 8000 + i }}:8000"
