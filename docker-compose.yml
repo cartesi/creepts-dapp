@@ -28,7 +28,7 @@ services:
       - onchain_data:/opt/cartesi/share/blockchain
 
   logger:
-    image: cartesi/logger-server:0.1.1
+    image: cartesi/logger-server:0.1.3
     command: [ "-c", "/opt/cartesi/share/blockchain/node_modules/@cartesi/logger/build/contracts/Logger.json" ]
     depends_on: [creepts-onchain]
     volumes:

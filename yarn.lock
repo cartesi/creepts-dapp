@@ -16,10 +16,10 @@
   dependencies:
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/logger@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@cartesi/logger/-/logger-0.1.1.tgz#20a98d056dee5a3d1c346468db8d8ab048a0a725"
-  integrity sha512-9aKmyIN6dK6Krp6Q530u0Jzf+GDNyeckkkZ6rxHMv8nxUZZX22rPleZryM4cn8RxxlFzIskv5GBjLre1YZCkTw==
+"@cartesi/logger@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@cartesi/logger/-/logger-0.1.3.tgz#3fa8f616cb7888381e24003f50363f7e8ccaa108"
+  integrity sha512-1kpIBquMhVk22mMBBwYb0QkQiyNa+x4C4ldUYiZHQPKSxYBkbCh43iQVbE11yCzxCBifaaYF4G+u0I5IFKl99w==
   dependencies:
     "@cartesi/util" "^0.1.1"
 
@@ -31,13 +31,13 @@
     "@cartesi/arbitration" "^0.1.3"
     "@cartesi/util" "^0.1.1"
 
-"@cartesi/tournament@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.1.tgz#26ec581a2c78ee2785b066bce37125c086dc544e"
-  integrity sha512-+jadHuO1E+6AJtx6SkiExm1uoIt1ZDs82C4j3/3/oGCEuYus9YCA/wNlNCzaJmUO2jeXDEWtxbaivFxaEtPlrw==
+"@cartesi/tournament@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@cartesi/tournament/-/tournament-0.1.2.tgz#cd65bc11e860925502826427ab7a96e121578a8f"
+  integrity sha512-hC83StL7ywi5EhymGwIeJksla430exlsVFM3FyczleQvEU/N7vL4F0nsw2SbfCyKdNoJhWJ1ErSwbjxWX48CAQ==
   dependencies:
     "@cartesi/arbitration" "^0.1.3"
-    "@cartesi/logger" "^0.1.1"
+    "@cartesi/logger" "^0.1.3"
     "@cartesi/util" "^0.1.1"
 
 "@cartesi/util@^0.1.1":
