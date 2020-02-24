@@ -12,7 +12,7 @@ services:
       - onchain_data:/opt/cartesi/share/blockchain
 
   dispatcher:
-    image: cartesi/creepts:0.1.4
+    image: cartesi/creepts:0.1.5
     depends_on: [creepts-onchain]
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,transport=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
