@@ -16,12 +16,12 @@ services:
     depends_on: [creepts-onchain]
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,transport=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
-      ETHEREUM_URL: wss://rinkeby.infura.io/ws/v3/93b4e1af3e524cf5979ca45262b4d81b
+      ETHEREUM_URL: wss://rinkeby.infura.io/ws/v3/${INFURA_ID:?INFURA_ID not set}
       ETHEREUM_HOST: rinkeby.infura.io
       ETHEREUM_PORT: 443
       NETWORK_ID: 4
       DOCKER: "TRUE"
-      MNEMONIC: "${MNEMONIC}"
+      MNEMONIC: "${MNEMONIC:?MNEMONIC not set}"
       ACCOUNT_INDEX: 0
     volumes:
       - ./dapp_data:/opt/cartesi/srv/creepts
@@ -35,9 +35,9 @@ services:
       - ./dapp_data:/opt/cartesi/srv/logger-server
       - onchain_data:/opt/cartesi/share/blockchain
     environment:
-      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/ws/v3/93b4e1af3e524cf5979ca45262b4d81b
+      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/ws/v3/${INFURA_ID:?INFURA_ID not set}
       NETWORK_ID: 4
-      MNEMONIC: "${MNEMONIC}"
+      MNEMONIC: "${MNEMONIC:?MNEMONIC not set}"
   
   machine-manager:
     image: cartesi/machine-manager:0.1.0
@@ -52,12 +52,12 @@ services:
       - ./dapp_data:/opt/cartesi/srv/creepts
       - onchain_data:/opt/cartesi/share/blockchain
     environment:
-      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/ws/v3/93b4e1af3e524cf5979ca45262b4d81b
+      WEB3_PROVIDER_URI: wss://rinkeby.infura.io/ws/v3/${INFURA_ID:?INFURA_ID not set}
       LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
       DB_NAME: /opt/cartesi/srv/creepts/creepts.db
       CONTRACTS_DIR: /opt/cartesi/share/blockchain
       NETWORK_ID: 4
-      MNEMONIC: "${MNEMONIC}"
+      MNEMONIC: "${MNEMONIC:?MNEMONIC not set}"
   
   web:
     depends_on: [backend]

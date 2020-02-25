@@ -87,16 +87,15 @@ After the environment is running, open http://localhost:8090 to open the game UI
 
 #### Running on Testnet
 
-Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan` and `rinkeby`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, and run it using the following commands:
+Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan` and `rinkeby`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, then create an Infura application for your node. Define two environment variables: `MNEMONIC` with your 12-words account mnemonic (between quotes), and `INFURA_ID` with your personal Infura application, then run `docker-compose`.
 
 ```
 % export MNEMONIC="<mnemonic>"
+% export INFURA_ID=<infura_id>
 % docker-compose up
 ```
 
-Then open a brower at http://localhost:8090
-
-You don't need a ethereum node, by running the above commands you will be using a shared Infura node provided by Cartesi. This may change in the future.
+Wait for the environment to be up, and open a brower at http://localhost:8090
 
 In order to shutdown the environment hit CTRL-C to detach and bring the containers down using the command below. Keep in mind that in order to defend your score against your opponents you should keep your node running until the end of the tournament.
 
