@@ -31,3 +31,4 @@ services:
 testing: true
 url: ${ETHEREUM_URL}
 warn_delay: 30
+polling_interval: 15
