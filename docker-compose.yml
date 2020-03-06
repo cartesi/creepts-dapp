@@ -13,6 +13,7 @@ services:
 
   dispatcher:
     image: cartesi/creepts:0.1.5
+    restart: always
     depends_on: [creepts-onchain]
     environment:
       RUST_LOG: dispatcher=trace,transaction=trace,transport=trace,configuration=trace,utils=trace,state=trace,compute=trace,tournament=trace,creepts_dapp=trace
