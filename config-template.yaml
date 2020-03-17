@@ -29,7 +29,7 @@ services:
       address: logger
       port: 50051
 testing: true
-url: ${ETHEREUM_URL}
+url: ${WEB3_PROVIDER_URI}
 warn_delay: 30
 polling_interval: 15
 web3_timeout: 10

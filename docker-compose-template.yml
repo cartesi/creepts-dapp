@@ -37,17 +37,18 @@ services:
       {% endfor %}
 
   creepts_emulator:
-    image: cartesi/creepts-machine:0.1.0
+    image: cartesi/creepts-machine:0.2.0
     volumes:
       - emulator_data:/opt/cartesi/creepts
     entrypoint: ls -al
   
 {% for i in range(players) %}
   dispatcher_{{ i }}:
-    image: cartesi/creepts:0.1.5
+    image: cartesi/creepts:0.2.0
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,compute=trace,tournament=trace,creepts_dapp=trace
-      ETHEREUM_URL: http://ganache:8545
+      WEB3_PROVIDER_URI: http://ganache:8545
+      DEPLOYMENT_SEMAPHORE: file:///opt/cartesi/share/blockchain/deploy_done
       DOCKER: "TRUE"
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
@@ -62,7 +63,7 @@ services:
       - "{{ 3001 + i }}:3001"
 
   logger_{{ i }}:
-    image: cartesi/logger-server:0.1.3
+    image: cartesi/logger-server:0.2.2
     command: [ "-c", "/opt/cartesi/share/blockchain/node_modules/@cartesi/logger/build/contracts/Logger.json" ]
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
@@ -70,6 +71,7 @@ services:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/logger-server
     environment:
       WEB3_PROVIDER_URI: http://ganache:8545
+      DEPLOYMENT_SEMAPHORE: file:///opt/cartesi/share/blockchain/deploy_done
     networks:
       ethereum: {}
       node_{{ i }}:
@@ -77,7 +79,7 @@ services:
           - logger
 
   machine_manager_{{ i }}:
-    image: cartesi/machine-manager:0.1.0
+    image: cartesi/machine-manager:0.3.0
     volumes:
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
       - emulator_data:/opt/cartesi/srv/emulator-files
@@ -88,13 +90,14 @@ services:
           - machine-manager
 
   backend_{{ i }}:
-    image: cartesi/creepts-backend:0.1.4
+    image: cartesi/creepts-backend:0.1.6
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
       - ./dapp_data_{{ i }}:/opt/cartesi/srv/creepts
     environment:
       WEB3_PROVIDER_URI: http://ganache:8545
+      DEPLOYMENT_SEMAPHORE: file:///opt/cartesi/share/blockchain/deploy_done
       LOG_FILES_OUTPUT_DIR: /opt/cartesi/srv/creepts/
       DB_NAME: /opt/cartesi/srv/creepts/creepts.db
       CONTRACTS_DIR: /opt/cartesi/share/blockchain
@@ -108,7 +111,7 @@ services:
 
   web_{{ i }}:
     depends_on: [backend_{{ i }}]
-    image: cartesi/creepts-web:0.1.3
+    image: cartesi/creepts-web:0.1.5
     environment:
       REACT_APP_API_URL: /api
     ports:

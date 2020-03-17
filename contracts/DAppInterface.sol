@@ -46,7 +46,6 @@ contract DAppInterface is Instantiator {
         uint256 _level,
 
         // MatchManager params
-        uint256 _matchDuration,
         uint256 _roundDuration,
         uint256 _finalTime,
         address _machineAddress ) public returns (uint256);

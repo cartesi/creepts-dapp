@@ -382,17 +382,17 @@ fn test_ram() -> Ram {
 }
 
 fn build_machine(is_opponent: bool, index: U256, level: U256) -> Result<cartesi_base::MachineRequest> {
-    let mut ram_msg = cartesi_base::RAM::new();
+    let mut ram_msg = cartesi_base::RAMConfig::new();
     let test_ram = test_ram();
     ram_msg.set_length(test_ram.length);
     ram_msg.set_backing(test_ram.backing);
 
-    let mut drives_msg: Vec<cartesi_base::Drive> = Vec::new();
+    let mut drives_msg: Vec<cartesi_base::FlashConfig> = Vec::new();
 
     let drives = test_drives(is_opponent, index, level);
 
     for drive in drives.iter() {
-        let mut drive_msg = cartesi_base::Drive::new();
+        let mut drive_msg = cartesi_base::FlashConfig::new();
 
         drive_msg.set_start(drive.start);
         drive_msg.set_length(drive.length);
@@ -403,15 +403,18 @@ fn build_machine(is_opponent: bool, index: U256, level: U256) -> Result<cartesi_
         drives_msg.push(drive_msg);
     }
 
-    let mut rom_msg = cartesi_base::ROM::new();
+    let mut rom_msg = cartesi_base::ROMConfig::new();
     let test_rom = test_rom();
     rom_msg.set_bootargs(test_rom.bootargs);
     rom_msg.set_backing(test_rom.backing);
 
+    let mut machine_config = cartesi_base::MachineConfig::new();
+    machine_config.set_rom(rom_msg);
+    machine_config.set_ram(ram_msg);
+    machine_config.set_flash(protobuf::RepeatedField::from_vec(drives_msg));
+
     let mut machine = cartesi_base::MachineRequest::new();
-    machine.set_rom(rom_msg);
-    machine.set_ram(ram_msg);
-    machine.set_flash(protobuf::RepeatedField::from_vec(drives_msg));
+    machine.set_config(machine_config);
 
     trace!("Build machine for dapp (index {}, level {}) {:?}", index, level, machine);
 

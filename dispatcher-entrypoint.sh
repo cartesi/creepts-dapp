@@ -15,15 +15,14 @@ else
     export ACCOUNT_ADDRESS=$(wagyu ethereum import-hd --mnemonic "${MNEMONIC}" --derivation "m/44'/60'/0'/0/${ACCOUNT_INDEX}" --json | jq -r '.[0].address')
 fi
 
-# if a network id is set we assume deployment is already done, no need to wait for it
-if [ -z "${NETWORK_ID}" ]; then
+# wait for deployment if env is set
+if [ -n "${DEPLOYMENT_SEMAPHORE}" ]; then
     echo "Waiting for blockchain deployment..."
-    dockerize -wait file:///opt/cartesi/share/blockchain/deploy_done -timeout ${ETHEREUM_TIMEOUT}
+    dockerize -wait ${DEPLOYMENT_SEMAPHORE} -timeout ${ETHEREUM_TIMEOUT}
 fi
 
 echo "Waiting for services..."
 dockerize \
-    -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -wait tcp://machine-manager:50051 \
     -wait tcp://logger:50051 \
     -timeout ${ETHEREUM_TIMEOUT}

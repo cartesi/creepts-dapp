@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/creepts",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Creepts by Cartesi",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,18 +19,18 @@
   },
   "homepage": "https://github.com/cartesi/creepts-dapp#readme",
   "dependencies": {
-    "@cartesi/arbitration": "^0.1.3",
-    "@cartesi/logger": "^0.1.3",
-    "@cartesi/machine-solidity-step": "^0.1.1",
-    "@cartesi/tournament": "^0.1.2",
-    "@cartesi/util": "^0.1.1"
+    "@cartesi/arbitration": "^0.2.0",
+    "@cartesi/logger": "^0.2.0",
+    "@cartesi/machine-solidity-step": "^0.3.0",
+    "@cartesi/tournament": "^0.2.0",
+    "@cartesi/util": "^0.2.0"
   },
   "devDependencies": {
-    "@truffle/contract": "^4.1.4",
-    "@truffle/hdwallet-provider": "^1.0.28",
+    "@truffle/contract": "^4.1.13",
+    "@truffle/hdwallet-provider": "^1.0.33",
     "commander": "^4.1.0",
     "solidity-coverage": "^0.6.7",
-    "truffle": "^5.1.8"
+    "truffle": "^5.1.17"
   },
   "files": [
     "contracts",

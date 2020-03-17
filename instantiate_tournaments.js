@@ -20,7 +20,6 @@ program
     .option('-a, --account <account>', 'Account sender of transaction')
     .option('--commit-duration <duration>', 'Duration in seconds of commit phase', 200)
     .option('--reveal-duration <duration>', 'Duration in seconds of reveal phase', 200)
-    .option('--match-duration <duration>', 'Duration in seconds of match phase', 90)
     .option('--round-duration <duration>', 'Duration in seconds of round phase', 45);
 
 module.exports = async (callback) => {
@@ -30,7 +29,7 @@ module.exports = async (callback) => {
 
     try {
         const networkId = await web3.eth.net.getId();
-        
+
         let fromAddress = undefined;
         if (program.account) {
             fromAddress = program.account;
@@ -53,21 +52,20 @@ module.exports = async (callback) => {
 
         const commitDuration = program.commitDuration;
         const revealDuration = program.revealDuration;
-        const matchDuration = program.matchDuration;
         const roundDuration = program.roundDuration;
         const scoreDriveLogSize = 3;
         const logDriveLogSize = 20;
         const finalTime = 1e13;
 
         const setupHashes = [
-            "0x82920eb4317138b39b9d9333f7a768dbb24db7252e95400818e501fe6a2159c5",
-            "0xb25482f3386492228e7e165391b5b9742e477d2e26dfd06b0958cdefd2764b66",
-            "0x2afeff8cadb329da36f4c27feb1c7e8d14903bc3df730fc76c921ca42a76d7cf",
-            "0xe7977082975a46000d7ab9de0dfe61363d86e36096e08d1970f0d60e063f3f31",
-            "0x674788b3b9cad820af63ea18c266abdad02d580da3068d5caa3b550c3fa6681b",
-            "0xcb9d832a375b70123450a511534d49e39f7d88f59fe04287790fc13b86baa1ab",
-            "0x05bc18e7afb2cdac48b8433e63e1df95f2a7571cd06f9b30e669b06d1bbfbd8e",
-            "0xeea5ae314cb94f2d0def960a867358c94fc277d63892a6da688c409bba356fc5"
+            "0x375fb938dcff562818779bc0dc4689a713a61d89659c8a9274a53551c7bc464c",
+            "0xb58562a821fd887ee508da7bc0926ce75a461ebd45d35c8e1ed7caa906559e5c",
+            "0x5dde12fc07c72c146848be21c85c13071630b59c8dc915d46e0f4528eaf45111",
+            "0x37edf1fda365aa316374aed600b4bc7b981ab9cb7952b6f0e68bb362f93abd0d",
+            "0xefe6f44a51e45045e50dcb1fcd1388a550b822ad9b2bdf4ccef01292720c02c4",
+            "0x1e9b8a93e65a51509dcab1c1444d0fc7deb14589972bf58ca6708a56aca0ef3b",
+            "0x2098fbf4c6a46e0586a55def8229f8ef5c5972c6032fcb344f9b434be4e5a4a7",
+            "0x872f44b8a31938ceacfbd7d537de344fc0a5657a26b8e15276324a1d73cd420b"
         ];
 
         const dapp = await DApp.deployed();
@@ -81,7 +79,6 @@ module.exports = async (callback) => {
             logDriveLogSize,
             hash,
             program.level,
-            matchDuration,
             roundDuration,
             finalTime,
             Step.address,

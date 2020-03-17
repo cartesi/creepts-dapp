@@ -2,7 +2,7 @@
 description = "Cartesi Creepts Game"
 homepage = "https://cartesi.io"
 name = "dapp"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Cartesi Team"]
 
 [dependencies]

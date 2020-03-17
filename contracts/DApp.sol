@@ -41,7 +41,6 @@ contract DApp is Decorated, DAppInterface {
         uint256 level; // map level
 
         // MatchManager params
-        uint256 matchDuration;
         uint256 roundDuration;
         uint256 finalTime;
         address parentAddress;
@@ -69,7 +68,6 @@ contract DApp is Decorated, DAppInterface {
         uint256 _level,
 
         // MatchManager params
-        uint256 _matchDuration,
         uint256 _roundDuration,
         uint256 _finalTime,
         address _machineAddress) public returns (uint256)
@@ -81,7 +79,6 @@ contract DApp is Decorated, DAppInterface {
         instance[currentIndex].setupHash = _setupHash;
         instance[currentIndex].level = _level;
 
-        instance[currentIndex].matchDuration = _matchDuration;
         instance[currentIndex].roundDuration = _roundDuration;
         instance[currentIndex].finalTime = _finalTime;
 
@@ -112,7 +109,6 @@ contract DApp is Decorated, DAppInterface {
 
             instance[_index].currentState = state.WaitingMatches;
             instance[_index].matchManagerIndex = instance[_index].mm.instantiate(
-                instance[_index].matchDuration,
                 instance[_index].roundDuration,
                 instance[_index].finalTime,
                 address(this), // dapp address

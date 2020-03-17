@@ -53,12 +53,11 @@ This will run an environment connected to a private net (ganache or geth), with 
 To deploy a new tournament you need to run the `instantiate_tournament.js` truffle script. To do this you need to have `truffle` installed, and run:
 
 ```
-% truffle exec instantiate_tournaments.js --network development --level 0 --commit-duration 50 --reveal-duration 200 --match-duration 100 --round-duration 50
+% truffle exec instantiate_tournaments.js --network development --level 0 --commit-duration 50 --reveal-duration 200 --round-duration 50
 
     -l, --level <level>: Level number [0-7]
     --commit-duration <duration>: Duration in seconds of commit phase
-    --epoch-duration <duration>: Duration in seconds of epoch phase
-    --match-duration <duration>: Duration in seconds of match phase
+    --reveal-duration <duration>: Duration in seconds of reveal phase
     --round-duration <duration>: Duration in seconds of round phase
 ```
 This will print something like this:
@@ -87,11 +86,11 @@ After the environment is running, open http://localhost:8090 to open the game UI
 
 #### Running on Testnet
 
-Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan` and `rinkeby`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, then create an Infura application for your node. Define two environment variables: `MNEMONIC` with your 12-words account mnemonic (between quotes), and `INFURA_ID` with your personal Infura application, then run `docker-compose`.
+Cartesi will provided a docker image called `cartesi/creepts-onchain` with references to pre-deployed contracts to the testnets `ropsten`, `kovan`, `rinkeby` and `matic_testnet`. So in order to run the cartesi node on your machine you need to create an ethereum wallet, put some funds on it, then create an Infura application for your node. Define two environment variables: `MNEMONIC` with your 12-words account mnemonic (between quotes), and `WEB3_PROVIDER_URI` with the `wss` endpoint of your Infura application, then run `docker-compose`.
 
 ```
 % export MNEMONIC="<mnemonic>"
-% export INFURA_ID=<infura_id>
+% export WEB3_PROVIDER_URI=wss://rinkeby.infura.io/ws/v3/<infura_id>
 % docker-compose up
 ```
 
