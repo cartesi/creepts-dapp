@@ -39,7 +39,7 @@ services:
 {% for i in range(players) %}
   dispatcher_{{ i }}:
     # build: .
-    image: cartesi/creepts:0.1.5
+    image: cartesi/creepts:0.2.1
     environment:
       RUST_LOG: dispatcher=info,transaction=info,configuration=trace,utils=trace,state=info,compute=trace,tournament=trace,creepts_dapp=trace
       WEB3_PROVIDER_URI: http://geth:8545
@@ -87,7 +87,7 @@ services:
           - machine-manager
 
   backend_{{ i }}:
-    image: cartesi/creepts-backend:0.1.6
+    image: cartesi/creepts-backend:0.1.7
     volumes:
       - ./:/opt/cartesi/share/blockchain:ro
       - key_data_{{ i }}:/opt/cartesi/etc/keys
@@ -107,7 +107,7 @@ services:
 
   web_{{ i }}:
     depends_on: [backend_{{ i }}]
-    image: cartesi/creepts-web:0.1.5
+    image: cartesi/creepts-web:0.1.6
     environment:
       REACT_APP_API_URL: /api
     ports:
